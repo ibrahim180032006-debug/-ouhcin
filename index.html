@@ -30,7 +30,7 @@ a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
 img { max-width: 100%; display: block; }
 ul { list-style: none; }
-input, textarea { font-family: inherit; }
+input, textarea, select { font-family: inherit; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
 /* ============ الهيدر ============ */
@@ -130,13 +130,16 @@ body.dark .order-section { background: linear-gradient(135deg, #1a0f2e 0%, #2a0f
 .field { margin-bottom: 14px; }
 .field label { display: block; font-weight: 800; font-size: 13px; color: var(--text); margin-bottom: 6px; }
 .field label .req { color: var(--danger); }
-.field input, .field textarea { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); transition: all 0.25s; }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124,58,237,0.1); }
+.field input, .field textarea, .field select { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); transition: all 0.25s; }
+.field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124,58,237,0.1); }
 .field textarea { resize: vertical; min-height: 76px; }
-.field input.err, .field textarea.err { border-color: var(--danger); }
+.field input.err, .field textarea.err, .field select.err { border-color: var(--danger); }
 .field .err-msg { color: var(--danger); font-size: 11px; margin-top: 4px; font-weight: 600; display: none; }
-.field input.err + .err-msg, .field textarea.err + .err-msg { display: block; }
+.field input.err + .err-msg, .field textarea.err + .err-msg, .field select.err + .err-msg { display: block; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: left 12px center; background-size: 16px; padding-left: 38px; cursor: pointer; }
+.field select:disabled { opacity: 0.6; cursor: not-allowed; }
+.field select option { background: var(--bg-card); color: var(--text); }
 .btn-confirm { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--success), #059669); color: #fff; font-size: 16px; font-weight: 900; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 22px rgba(16,185,129,0.35); transition: all 0.3s; margin-top: 8px; }
 .btn-confirm:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(16,185,129,0.5); }
 .btn-confirm:disabled { opacity: 0.7; cursor: not-allowed; }
@@ -638,9 +641,27 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
           </div>
         </div>
 
+        <!-- ✅ الولاية والبلدية -->
+        <div class="field-row">
+          <div class="field">
+            <label for="wilaya">الولاية <span class="req">*</span></label>
+            <select id="wilaya" required onchange="onWilayaChange()">
+              <option value="">-- اختر الولاية --</option>
+            </select>
+            <div class="err-msg">يرجى اختيار الولاية</div>
+          </div>
+          <div class="field">
+            <label for="baladiya">البلدية <span class="req">*</span></label>
+            <select id="baladiya" required disabled onchange="onBaladiyaChange()">
+              <option value="">-- اختر الولاية أولاً --</option>
+            </select>
+            <div class="err-msg">يرجى اختيار البلدية</div>
+          </div>
+        </div>
+
         <div class="field">
           <label for="address">عنوان الشحن الكامل <span class="req">*</span></label>
-          <textarea id="address" placeholder="مثال: الجزائر العاصمة، بلدية باب الزوار، حي 5 جويلية، عمارة 12" required></textarea>
+          <textarea id="address" placeholder="مثال: حي 5 جويلية، عمارة 12، رقم 05" required></textarea>
           <div class="err-msg">يرجى إدخال عنوان الشحن</div>
         </div>
 
@@ -845,16 +866,80 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
 
 <script>
 /* ========================================================
-   ⚙️ إعدادات JSONBin — ضع قيمك هنا
+   ⚙️ إعدادات JSONBin
    ======================================================== */
 const JSONBIN_BIN_ID = '6aa8b722ac6210605ace46ac';
 const JSONBIN_ACCESS_KEY = '$2a$10$lxOSLzBKhOpS.1mro1r3POI13eOrW614ndN1nP1Azcl5GoY2aUCyi';
 
 /* ========================================================
-   📲 إعدادات تيليجرام — لإرسال الطلبيات إلى حسابك
+   📲 إعدادات تيليجرام
    ======================================================== */
 const TELEGRAM_BOT_TOKEN = '8969636351:AAGKRAu20IhHTaD8tn38Ug__pJK5JPt9-10';
 const TELEGRAM_CHAT_ID = '8629443847';
+
+/* ========================================================
+   🇩🇿 بيانات الولايات والبلديات (58 ولاية)
+   ======================================================== */
+const WILAYAS_DATA = {
+  "01 - أدرار": ["أدرار","تامست","شاروين","رقان","فنوغيل","أولاد أحمد تيمي","تسابيت","زاوية كنتة","تيت","أولاد سعيد","بودة","أولاد عيسى","تيميمون","أولاد السعيد","تامنطيط","عين زغمير","سالي","تيميقتن"],
+  "02 - الشلف": ["الشلف","تنس","بوقادير","وادي الفضة","الأبيض مجاجة","أولاد فارس","بني حواء","الظهرة","تلعصة","بوزغاية","أولاد عباس","وادي سلي","الشطية","الكريمية","سنجاس","تاوقريت","أبو الحسن","بنair"],
+  "03 - الأغواط": ["الأغواط","أفلو","قصر الحيران","عين ماضي","الحويطة","تاجموت","حاسي الرمل","بريدة","الغيشة","وادي مرة","الحاجرة","تاويالة","سيدي مخلوف","العسافية","بن ناصر بن شهرة","الحويطة","قلتة سيدي سعد","حاسي الدلاعة"],
+  "04 - أم البواقي": ["أم البواقي","عين البيضاء","عين مليلة","عين فكرون","عين كرشة","مسكiana","سوق نعمان","الضلعة","بحير الشرقي","فkirina","الحرملية","الجازية","عين الزيتون","عين بابوش","بئر الشهداء","أولاد حملة"],
+  "05 - باتنة": ["باتنة","بريكة","عين التوتة","مروانة","عين مليلة","بوزينة","أريس","نقاوس","سريانة","رأس العيون","تازولت","المعذر","سقانة","تيمقاد","عين جاسر","الحاسي","قصر بلزمة","بيطام","أولاد سي سليمان"],
+  "06 - بجاية": ["بجاية","أقبو","سوق الاثنين","خراطة","أميزور","تيشي","صدوق","سيدي عيش","تيمايزد","درقينة","القصر","أدكار","أيت إسماعيل","إغيل علي","تازمالت","بني معوش","شميني","تيمزريت","أوقاس","بني مليكش","سيدي أيش"],
+  "07 - بسكرة": ["بسكرة","طولقة","سيدي عقبة","زريبة الوادي","أولاد جلال","القنطرة","فوغالة","مليلي","الوطاية","القصور","البرانيس","ليشانة","أوماش","سيدي خالد","الفيض","بوشقرون","جمورة","لوطاية"],
+  "08 - بشار": ["بشار","القنادسة","بني ونيف","العبادلة","تاغيت","لحمر","موغل","بوكايس","العش","مشرية","بني عباس","أولاد خضير","القصابي"],
+  "09 - البليدة": ["البليدة","بوفاريك","الأربعاء","موزاية","الأفroun","وادي العلايق","بني مراد","الشبلي","الصومعة","بوقرة","سوما","أولاد يعيش","الشريعة","مفتاح","أولاد سلامة","بني تامو","صومعة"],
+  "10 - البويرة": ["البويرة","سور الغزلان","لخضرية","مشدالة","عين بسام","الأخضرية","قادرية","بئر غبالو","الحاشمية","بشلول","بوروبة","الهاشمية","أحمد راشدي","أيت لعزيز","ديرة","جباحية","الأسنام","تاقديت","زبربر"],
+  "11 - تمنراست": ["تمنراست","عين قزام","إن صalah","إن قزام","تاظروك","عين أمقل","إدلس","أبلسة"],
+  "12 - تبسة": ["تبسة","بئر العاتر","الشريعة","الونزة","مرسط","العقلة","الحمامات","نقرين","بكارية","الكويف","مرسط","الماء الأبيض","أم علي","عين الزرقاء","الڨريقر","بئر مقدم","سطح قنطيس","بوخضرة"],
+  "13 - تلمسان": ["تلمسان","منصورة","شتوان","الرمشي","مغنية","الغزوات","صبرة","بني بوسعيد","عين تالوت","هنaya","الفحص","بني مستار","باب العسة","الطارف","عين فتاح","عمير","صبرة","بني سنوس","مرسى بن مهيدي"],
+  "14 - تيارت": ["تيارت","السوقر","فرندة","عين الذهب","مهدية","قصر الشلالة","دحموني","حمادية","رحوية","مدريسة","عين كرمس","رشايقة","مشرع الصفا","توسنينة","سيدي بختي","مدrousa","دahmouni","عين بوشقيف"],
+  "15 - تيزي وزو": ["تيزي وزو","عزازقة","ذراع بن خدة","بوغني","تيقزيرت","لاربعاء ناث ايراثن","ماكودة","أقبيل","عين الحمام","أزفون","إفرحونان","بني دوالة","تيقزيرت","واقنون","مشطراس","أيت يحيى موسى","بوزقن","إيلولة أومالو","أيت بومهدي"],
+  "16 - الجزائر": ["الجزائر الوسطى","باب الوادي","باب الزوار","بئر مراد رايس","بئر خادم","حسين داي","الحراش","باب الزوار","الدار البيضاء","براقي","سيدي امحمد","المدنية","بلوزداد","القبة","بوزريعة","بن عكنون","الأبيار","المرادية","دالي إبراهيم","الشراقة","عين البنيان","درارية","بئر توتة","الرغاية","الرويبة","هراوة","بابا حسن","سحاولة","بولوغين","رais حميدو","القصبة","سيدي موسى","برج الكيفان","الدرارية","زرالدة","سouidania","عين طاية","بومرداس"],
+  "17 - الجلفة": ["الجلفة","عين وسارة","مسعد","حاسي بحبح","الإدريسية","دار الشيوخ","الشارف","بنهار","سيدي لعجال","زكار","بيرين","تعظميت","حد الصحاري","سلمانة","الخميس","أولاد ناصر","دويس","عمورة","القديد"],
+  "18 - جيجل": ["جيجل","الطاهير","الميلية","زيامة منصورية","الشقفة","سيدي معروف","السطارة","العوانة","تاكسنة","الشحنة","العنصر","بني ياجيس","الأمير عبد القادر","برج الطهر","قاوس","سلمى بن زيادة"],
+  "19 - سطيف": ["سطيف","العلمة","عين ولمان","عين الكبيرة","بوقاعة","عين أرنات","عين آزال","قجال","أولاد صابر","جميلة","بني عزيز","بابور","عين الروى","بئر العرش","الرصفة","عين السبت","أولاد سي أحمد","بني ورثيلان","بئر حدادة","الدهامشة","قصر الأبطال"],
+  "20 - سعيدة": ["سعيدة","عين الحجر","يوب","أولاد خالد","الحساسنة","سيدي بوبكر","دوي ثابت","أولاد براهيم","مoulay Larbi","يوب","عين السخونة","تircine","سidi Ahmed","هounet"],
+  "21 - سكيكدة": ["سكيكدة","عزابة","القل","الحروش","تمالوس","رمضان جمال","أم الطوب","بني بشير","بن عزوز","الشرايع","فلفلة","الزيتونة","عين شرشار","بكوش لخضر","السبت","أولاد عطية","زردازة","الحدائق"],
+  "22 - سيدي بلعباس": ["سيدي بلعباس","تلاغ","عين البرد","سفيزف","بن باديس","عين تندمين","مرحوم","راس الماء","المحمدية","تسالة","سيدي حمادوش","سيدي علي بن يوب","مصطفى بن ابراهيم","الضاية","عين البرد","بن عشي","تلموني"],
+  "23 - عنابة": ["عنابة","الحجار","برحال","البوني","الشرفة","سرايدي","عين الباردة","سيدي عمار","التريعات","شطايبي","قربة","واد العنب","برحال"],
+  "24 - قالمة": ["قالمة","وادي الزناتي","بوشقوف","حمام دباغ","عين مخلوف","قلعة بوصبع","حمام مسخوطين","هيليوبوليس","بومهرة","خزارة","عين العربي","بلخير","بن جراح","الركنية","مجاز الصفاء","جبالة الخميسي"],
+  "25 - قسنطينة": ["قسنطينة","الخروب","حامة بوزيان","ديدوش مراد","عين اسمارة","ابن زياد","زيغود يوسف","ابن باديس","بني حميدان","مسعود بوجريو","أولاد رحمون","ابن باديس","سيدي مبارك"],
+  "26 - المدية": ["المدية","برواقية","قصر البخاري","عين بوسيف","البرواقية","تابلاط","سي المحجوب","وزرة","تمزقيدة","بني سليمان","العمارية","سيدي نعمان","الحمدانية","عين القصير","أولاد أنتار","خمس جوامع","بوعيش","العيساوية","دراق"],
+  "27 - مستغانم": ["مستغانم","عين تادلس","حاسي مماش","سيدي علي","بوقيراط","ماسرة","خير الدين","سيدي لخضر","حجاج","عشعاشة","بوعين","منصورة","عين سيدي الشريف","صيادة","حسيان","تزقايت","الحسيان"],
+  "28 - المسيلة": ["المسيلة","بوسعادة","سيدي عيسى","عين الملح","مقرة","حمام الضلعة","مجدل","الخبانة","بن سرور","جبل مساعد","أولاد دراج","أولاد ماضي","شلالة العذاورة","عين فارس","تارمونت","مصيف","أولاد عدي لقبالة","سيدي هجرس"],
+  "29 - معسكر": ["معسكر","سيق","تيغنيف","غريس","المحمدية","بوهني","عين فارس","زهانة","وادي التاغية","البرج","المامونية","غروس","عقاز","تيزي","بنيان","النسمة","مقطع الدوز","حسين","سيدي عبد الجبار"],
+  "30 - ورقلة": ["ورقلة","حاسي مسعود","الرويسات","سيدي خويلد","انقوسة","نقوسة","حاسي بن عبد الله","العقلة","البرمة","الحجيرة","تبسبست","العالية"],
+  "31 - وهران": ["وهران","بئر الجير","السانية","عين الترك","بطيوة","أرزيو","وادي تليلات","مسرغين","بوتليليس","الكرمة","بوسفر","عين البية","العنصر","المرسى الكبير","حاسي بونيف","سيدي الشحمي","حاسي مفسوخ","بوفاتيس","طفراوي"],
+  "32 - البيض": ["البيض","بوقطب","روقاصة","الأبيض سيدي الشيخ","بريزينة","الغاسoul","الشلالة","البيضاء","عين العراك","كراكدة","العقيد لطفي","مشرية","بوسمغون","البيض سيدي الشيخ","رقاصة","استيتن"],
+  "33 - إليزي": ["إليزي","جانت","برج عمر إدريس","دبداب","إن أميناس","برج الحواس"],
+  "34 - برج بوعريريج": ["برج بوعريريج","رأس الوادي","بordj الغدير","المنصورة","برج زمورة","العش","مجانة","الحمادية","جعافرة","سيدي أمبارك","بن داود","الحشاشمة","المهير","تسامرت","أولاد براهم","خليل","القصور","الأنسجة"],
+  "35 - بومرداس": ["بومرداس","برج منايل","الثنية","بودواو","دلس","الناصرية","خميس الخشنة","الأربعطاش","تيجلابين","زموري","سي مصطفى","قورصو","بغلية","سيدي داود","أولاد عيسى","الأخضرية","الشعبة","الخروبة"],
+  "36 - الطارف": ["الطارف","القالة","بن مهيدي","بريحان","الذرعان","بوحجار","عين العسل","الشط","زريزر","عين الكرمة","بوثلجة","الشقيق","السوارخ","البسباس","عين الكرمة","الذرعان"],
+  "37 - تندوف": ["تندوف","أم العسل"],
+  "38 - تيسمسيلت": ["تيسمسيلت","ثنية الأحد","برج بونعامة","خميستي","الأزهرية","لرجام","العيون","بوقايد","المعاصم","الأزهرية","بني شعيب","اليوسفية","سيدي سليمان","تيملولين","بني لحسن","العيون","برج الأمير عبد القادر"],
+  "39 - الوادي": ["الوادي","الرباح","قمار","الدبيلة","المغير","جامعة","الطالب العربي","حاسي خليفة","الرقيبة","حساني عبد الكريم","الوادي","بن قشة","ورماس","سيدي عمران","أم الطيور","المقرن","الصحراء"],
+  "40 - خنشلة": ["خنشلة","قايس","ششار","ببار","الحامة","بوحمامة","الرميلة","خيران","أولاد رشاش","ب demand","المحمل","عين الطويلة","طامزة","يابوس","أولاد رشاش","بابار"],
+  "41 - سوق أهراس": ["سوق أهراس","سدراتة","الحدادة","المشروحة","مداوروش","تاورة","بئر بوحوش","أم العظائم","الزعرورية","خميسة","عين سلطان","الولجة","وادي الكبريت","المراهنة","ترقالت"],
+  "42 - تيبازة": ["تيبازة","القليعة","حجوط","شرشال","فوكة","دواودة","أحمر العين","بوسماعيل","الدمس","سيدي عمار","الحطاطبة","مناصر","الناظور","سيدي غيلاس","بوهارون","خميستي","الشرشال"],
+  "43 - ميلة": ["ميلة","فرجيوة","شلغوم العيد","وادي العثمانية","تلاغمة","القرارم قوقة","عين البيضاء حرش","رواشد","زغاية","تسدان حدادة","وادي النجاء","العياضي برباس","سيدي مروان","أولاد خلوف","بن يحيى عبد الرحمان","الرواشد","تاجنانت"],
+  "44 - عين الدفلى": ["عين الدفلى","خميس مليانة","مليانة","الأربعاء","بومدفع","جمعة أوأولاد شاي","الروينة","العطاف","بوراشد","حمام ريغة","جندل","عين لشياخ","بطحية","الحساينية","عريب","الأميرية","مليانة","الماين"],
+  "45 - النعامة": ["النعامة","المشرية","عين الصفراء","مكمن بن عمار","صفيصيفة","تيوت","مغرار","عسلة","كاصل","البيضة","عين بن خليل","مكمن بن عمار"],
+  "46 - عين تموشنت": ["عين تموشنت","بني صاف","حمام بوحجر","المالح","العامرية","الأمير عبد القادر","شعبة اللحم","عين الكيحل","أولاد الكيحل","حاسي الغلة","شعبة اللحم","سيدي بن عدة","تمزور","أولاد الكيحل"],
+  "47 - غرداية": ["غرداية","متليلي","بريان","القرارة","زلفانة","المنيعة","ضاية بن ضحوة","العطف","بونورة","حاسي الفحل","سبسب","حاسي القارة"],
+  "48 - غليزان": ["غليزان","وادي رهيو","عمي موسى","مازونة","زمورة","جديوية","سيدي لزرق","المطمر","القلعة","حمري","سيدي محمد بن علي","بني زنتيس","الحمادنة","الرمكة","سيدي امحمد بن عودة","بلعسل بوزقزة"],
+  "49 - تيميمون": ["تيميمون","أولاد سعيد","شروين","أوقروت","دلدول","المطارفة","طالمين","قصر قدور","أولاد عيسى","تينركوك"],
+  "50 - برج باجي مختار": ["برج باجي مختار","تيمياوين"],
+  "51 - أولاد جلال": ["أولاد جلال","سيدي خالد","الشعيبة","الدوسن","رأس الميعاد","البسباس","الشعيبة","سيدي خالد"],
+  "52 - بني عباس": ["بني عباس","أولاد خضير","تامترت","القصابي","إقلي","كرزاز","تيمودي","تبلبالة","أولاد خضير"],
+  "53 - عين صالح": ["عين صالح","فقارة الزوى","إن غار","أولاد سعيد"],
+  "54 - عين قزام": ["عين قزام","تين زواتين"],
+  "55 - تقرت": ["تقرت","تماسين","المقارين","الزاوية العابدية","النزلة","الطيبات","بن ناصر","الحجيرة","العالية","سيدي سليمان","بلدة عمر"],
+  "56 - جانت": ["جانت","برج الحواس"],
+  "57 - المغير": ["المغير","جامعة","الرقيبة","سيدي عمران","أم الطيور","الوادي","المرارة","سطيل","تندلة","الحمراية"],
+  "58 - المنيعة": ["المنيعة","حاسي القارة","حاسي الفحل","بونورة"]
+};
 
 let CFG, P, S;
 let cart = [];
@@ -863,7 +948,6 @@ let qty = 1;
 
 /* ============ تحميل البيانات من JSONBin ============ */
 async function loadConfig() {
-  // 1) وضع المعاينة من لوحة التحكم
   if (window.location.search.includes('preview=1')) {
     const preview = localStorage.getItem('previewData');
     if (preview) {
@@ -876,7 +960,6 @@ async function loadConfig() {
     }
   }
 
-  // 2) محاولة الجلب من JSONBin
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
       headers: { 'X-Access-Key': JSONBIN_ACCESS_KEY }
@@ -888,19 +971,46 @@ async function loadConfig() {
     S = CFG.store;
     console.log('✅ تم التحميل من JSONBin');
   } catch (e) {
-    // 3) في حال الفشل: العودة إلى products.js
     console.warn('⚠️ تعذّر الاتصال بـ JSONBin، استخدام products.js:', e);
     CFG = PRODUCTS_DATA;
     P = CFG.product;
     S = CFG.store;
   }
 
-  // تعيين اللون الافتراضي بعد تحميل البيانات
   selectedColor = (P.colors && P.colors.length > 0) ? P.colors[0].name : null;
 }
 
 /* ============ تنسيق السعر ============ */
 function formatPrice(p) { return p.toLocaleString('en-US') + ' د.ج'; }
+
+/* ============ تعبئة قائمة الولايات ============ */
+function populateWilayas() {
+  const wilayaSelect = document.getElementById('wilaya');
+  wilayaSelect.innerHTML = '<option value="">-- اختر الولاية --</option>' +
+    Object.keys(WILAYAS_DATA).map(w => `<option value="${w}">${w}</option>`).join('');
+}
+
+/* ============ عند تغيير الولاية ============ */
+function onWilayaChange() {
+  const wilaya = document.getElementById('wilaya').value;
+  const baladiyaSelect = document.getElementById('baladiya');
+
+  document.getElementById('wilaya').classList.remove('err');
+
+  if (!wilaya) {
+    baladiyaSelect.disabled = true;
+    baladiyaSelect.innerHTML = '<option value="">-- اختر الولاية أولاً --</option>';
+    return;
+  }
+
+  baladiyaSelect.disabled = false;
+  baladiyaSelect.innerHTML = '<option value="">-- اختر البلدية --</option>' +
+    WILAYAS_DATA[wilaya].map(b => `<option value="${b}">${b}</option>`).join('');
+}
+
+function onBaladiyaChange() {
+  document.getElementById('baladiya').classList.remove('err');
+}
 
 /* ========================================================
    📲 دالة إرسال الطلبية إلى تيليجرام
@@ -912,6 +1022,8 @@ async function sendOrderToTelegram(orderData) {
 👤 <b>الاسم:</b> ${orderData.firstName} ${orderData.lastName}
 📱 <b>الهاتف 1:</b> ${orderData.phone}
 📞 <b>الهاتف 2:</b> ${orderData.phone2}
+🗺️ <b>الولاية:</b> ${orderData.wilaya}
+🏘️ <b>البلدية:</b> ${orderData.baladiya}
 📍 <b>العنوان:</b> ${orderData.address}
 📝 <b>ملاحظات:</b> ${orderData.notes}
 ━━━━━━━━━━━━━━━━
@@ -957,31 +1069,26 @@ async function sendOrderToTelegram(orderData) {
 function applyConfig() {
   document.title = P.shortName + ' | ' + S.name;
 
-  // الهيدر
   document.getElementById('topBar').textContent = S.topBarText;
   document.getElementById('storeName').textContent = S.name;
   document.getElementById('storeLogo').innerHTML = S.logo.startsWith('http')
     ? `<img src="${S.logo}" alt="">`
     : S.logo;
 
-  // Breadcrumb
   document.getElementById('breadcrumbCat').textContent = P.category.replace(/[^\u0600-\u06FF\s]/g, '').trim() || 'المنتجات';
   document.getElementById('breadcrumbName').textContent = P.shortName;
 
-  // المنتج
   document.getElementById('productCat').textContent = P.category;
   document.getElementById('productTitle').textContent = P.name;
   document.getElementById('productDesc').textContent = P.description;
   document.getElementById('mainImg').src = P.images[0];
   document.getElementById('mainImg').alt = P.name;
 
-  // التقييم
   const fullStars = Math.floor(P.rating);
   const starsStr = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
   document.getElementById('productStars').textContent = starsStr;
   document.getElementById('productRating').textContent = `(${P.rating.toFixed(1)}) - ${P.reviewsCount} تقييم`;
 
-  // المخزون
   const stockBadge = document.getElementById('stockBadge');
   if (!P.inStock) {
     stockBadge.classList.add('out');
@@ -990,7 +1097,6 @@ function applyConfig() {
     document.getElementById('orderBtn').textContent = '❌ المنتج غير متوفر حالياً';
   }
 
-  // السعر
   document.getElementById('priceCurrent').textContent = formatPrice(P.price);
   if (P.oldPrice && P.oldPrice > P.price) {
     document.getElementById('priceOld').style.display = 'inline';
@@ -1003,7 +1109,6 @@ function applyConfig() {
   }
   document.getElementById('deliveryPrice').textContent = formatPrice(P.deliveryPrice);
 
-  // الصور
   const thumbs = document.getElementById('galleryThumbs');
   thumbs.innerHTML = P.images.map((img, i) => `
     <div class="thumb ${i === 0 ? 'active' : ''}" onclick="changeImg(this, '${img}')">
@@ -1011,7 +1116,6 @@ function applyConfig() {
     </div>
   `).join('');
 
-  // الألوان
   if (P.colors && P.colors.length > 0) {
     document.getElementById('colorBlock').style.display = 'block';
     document.getElementById('colorVal').textContent = P.colors[0].name;
@@ -1025,13 +1129,11 @@ function applyConfig() {
     document.getElementById('sumColorRow').style.display = 'none';
   }
 
-  // ملخص الطلب
   document.getElementById('sumProduct').textContent = P.shortName;
   document.getElementById('sumDelivery').textContent = formatPrice(P.deliveryPrice);
   document.getElementById('calcUnitPrice').textContent = formatPrice(P.price);
   document.getElementById('calcDelivery').textContent = formatPrice(P.deliveryPrice);
 
-  // المميزات
   document.getElementById('featuresGrid').innerHTML = P.features.map(f => `
     <div class="feature-card">
       <div class="feature-ic">${f.icon}</div>
@@ -1040,7 +1142,6 @@ function applyConfig() {
     </div>
   `).join('');
 
-  // المواصفات
   document.getElementById('specsGrid').innerHTML = P.specs.map(s => `
     <div class="spec-box">
       <span class="spec-ic">${s.icon}</span>
@@ -1049,7 +1150,6 @@ function applyConfig() {
     </div>
   `).join('');
 
-  // الآراء
   document.getElementById('reviewsGrid').innerHTML = P.reviews.map(r => {
     const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
     return `
@@ -1067,7 +1167,6 @@ function applyConfig() {
     `;
   }).join('');
 
-  // الأسئلة
   document.getElementById('faqList').innerHTML = P.faqs.map(f => `
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
@@ -1078,10 +1177,8 @@ function applyConfig() {
     </div>
   `).join('');
 
-  // CTA
   document.getElementById('ctaText').textContent = `احصل على ${P.shortName} الآن بأفضل سعر + الدفع عند الاستلام`;
 
-  // الفوتر
   document.getElementById('footerLogo').innerHTML = S.logo.startsWith('http')
     ? `<img src="${S.logo}" alt="" style="width:100%;height:100%;object-fit:cover;">`
     : S.logo;
@@ -1093,7 +1190,6 @@ function applyConfig() {
   document.getElementById('contactEmail').textContent = S.email;
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // السوشيال ميديا
   const socials = [
     { url: S.facebook, icon: '<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>' },
     { url: S.instagram, icon: '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>' },
@@ -1259,6 +1355,8 @@ async function submitOrder(e) {
   const lastName = document.getElementById('lastName');
   const phone = document.getElementById('phone');
   const phone2 = document.getElementById('phone2');
+  const wilaya = document.getElementById('wilaya');
+  const baladiya = document.getElementById('baladiya');
   const address = document.getElementById('address');
 
   let ok = true;
@@ -1267,6 +1365,8 @@ async function submitOrder(e) {
   const phoneReg = /^[0-9]{10}$/;
   if (!phoneReg.test(phone.value.trim())) { phone.classList.add('err'); ok = false; } else phone.classList.remove('err');
   if (phone2.value.trim() && !phoneReg.test(phone2.value.trim())) { phone2.classList.add('err'); ok = false; } else phone2.classList.remove('err');
+  if (!wilaya.value) { wilaya.classList.add('err'); ok = false; } else wilaya.classList.remove('err');
+  if (!baladiya.value) { baladiya.classList.add('err'); ok = false; } else baladiya.classList.remove('err');
   if (!address.value.trim()) { address.classList.add('err'); ok = false; } else address.classList.remove('err');
 
   if (!ok) { showToast('يرجى تصحيح البيانات المدخلة', 'bad'); return; }
@@ -1276,6 +1376,8 @@ async function submitOrder(e) {
     lastName: lastName.value.trim(),
     phone: phone.value.trim(),
     phone2: phone2.value.trim() || 'لا يوجد',
+    wilaya: wilaya.value,
+    baladiya: baladiya.value,
     address: address.value.trim(),
     notes: document.getElementById('notes').value.trim() || 'لا يوجد',
     product: P.name,
@@ -1288,7 +1390,6 @@ async function submitOrder(e) {
     orderNumber: 'ORD-' + Date.now().toString().slice(-8)
   };
 
-  // 1) حفظ محلياً
   const orders = JSON.parse(localStorage.getItem('orders') || '[]');
   orders.push(orderData);
   localStorage.setItem('orders', JSON.stringify(orders));
@@ -1299,26 +1400,21 @@ async function submitOrder(e) {
   btn.disabled = true;
   txt.textContent = '⏳ جاري إرسال الطلب...';
 
-  // 2) إرسال إلى تيليجرام
   const sent = await sendOrderToTelegram(orderData);
 
-  // 3) إظهار النتيجة للزبون
   setTimeout(() => {
     btn.disabled = false;
     txt.textContent = '✅ تأكيد الطلب - الدفع عند الاستلام';
 
-    if (sent) {
-      document.getElementById('orderNum').textContent = 'رقم الطلب: #' + orderData.orderNumber;
-      document.getElementById('successModal').classList.add('active');
-      showToast('تم استلام طلبك بنجاح!', 'ok');
-    } else {
-      // حتى لو فشل الإرسال، الطلب محفوظ محلياً
-      document.getElementById('orderNum').textContent = 'رقم الطلب: #' + orderData.orderNumber;
-      document.getElementById('successModal').classList.add('active');
-      showToast('تم حفظ الطلب، سنتواصل معك قريباً', 'ok');
-    }
+    document.getElementById('orderNum').textContent = 'رقم الطلب: #' + orderData.orderNumber;
+    document.getElementById('successModal').classList.add('active');
+    showToast(sent ? 'تم استلام طلبك بنجاح!' : 'تم حفظ الطلب، سنتواصل معك قريباً', 'ok');
 
     document.getElementById('orderForm').reset();
+    // إعادة تعيين البلدية
+    const balSelect = document.getElementById('baladiya');
+    balSelect.disabled = true;
+    balSelect.innerHTML = '<option value="">-- اختر الولاية أولاً --</option>';
     qty = 1;
     document.getElementById('qtyVal').textContent = '1';
     document.getElementById('calcQty').textContent = '1';
@@ -1346,7 +1442,6 @@ window.addEventListener('scroll', () => {
 });
 
 /* ============ دخول المدير إلى لوحة التحكم ============ */
-/* ⚠️ غيّر كلمة المرور هنا وفي admin.html */
 const ADMIN_PASSWORD = 'admin123';
 
 function openAdminLogin() {
@@ -1381,7 +1476,6 @@ function verifyAdminLogin() {
   }
 }
 
-// اختصار لوحة المفاتيح + ESC
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
     e.preventDefault();
@@ -1394,7 +1488,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// إغلاق عند النقر خارج النافذة
 document.getElementById('adminLoginModal').addEventListener('click', (e) => {
   if (e.target.id === 'adminLoginModal') closeAdminLogin();
 });
@@ -1402,6 +1495,9 @@ document.getElementById('adminLoginModal').addEventListener('click', (e) => {
 /* ============ التهيئة ============ */
 document.addEventListener('DOMContentLoaded', async () => {
   updateThemeIcon(document.body.classList.contains('dark'));
+
+  // 0. تعبئة قائمة الولايات
+  populateWilayas();
 
   // 1. حمّل البيانات من JSONBin أولاً
   await loadConfig();
