@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة التحكم</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- ============ مكتبة فك التشفير ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -467,7 +471,18 @@ input, textarea, select { font-family: inherit; }
    ⚙️ إعدادات JSONBin
    ======================================================== */
 const JSONBIN_BIN_ID = '6aa8b722ac6210605ace46ac';
-const JSONBIN_MASTER_KEY = '$2a$10$zeE148A6KmxpwF43kyJLeOkYP658XLiMXcc0R/6gJqyqRNUSQsDyu';
+
+/* ========================================================
+   🔐 النص المشفّر
+   ========================================================
+   هذا المفتاح مشفّر بكلمة المرور الخاصة بك عبر AES.
+   عند إدخال كلمة المرور الصحيحة في شاشة الدخول،
+   يتم فك التشفير واستخراج مفتاح JSONBin الحقيقي تلقائياً.
+   ======================================================== */
+const ENCRYPTED_KEY = "U2FsdGVkX18ysDCJhHC7aNef2drW4zw1Y3ulSCbKRgFxxu+0DWq4E7yhgsW6lyrN73FFHJVlvU3BgAwpZn8640PiNopytQcDIPsZYWqQedw=";
+
+/* متغير فارغ سيأخذ قيمة المفتاح الحقيقي فقط إذا كانت كلمة المرور صحيحة */
+let JSONBIN_MASTER_KEY = "";
 
 /* ========================================================
    ⚙️ إعدادات Cloudinary — ضع قيمك هنا
@@ -484,39 +499,83 @@ const CLOUDINARY_UPLOAD_PRESET = 'mouhcin_store';
 /* ========================================================
    الإعدادات العامة
    ======================================================== */
-const ADMIN_PASSWORD = 'admin123';
-
 let data = null;
 let hasUnsavedChanges = false;
 let dataLoadedFromCloud = false;
 
-/* ============ تسجيل الدخول ============ */
+/* ============ تسجيل الدخول (مشفّر) ============ */
 function login() {
   const pass = document.getElementById('passwordInput').value;
-  if (pass === ADMIN_PASSWORD) {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').classList.add('active');
-    sessionStorage.setItem('adminLogged', '1');
-    loadInitialData();
-  } else {
+
+  if (!pass) {
     document.getElementById('loginErr').style.display = 'block';
+    return;
   }
+
+  try {
+    // محاولة فك التشفير باستخدام كلمة المرور المُدخلة
+    const bytes = CryptoJS.AES.decrypt(ENCRYPTED_KEY, pass);
+    const decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
+
+    // إذا نجح فك التشفير (كلمة المرور صحيحة)
+    if (decryptedKey && decryptedKey.length > 0) {
+      JSONBIN_MASTER_KEY = decryptedKey; // تفعيل مفتاح قاعدة البيانات
+
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').classList.add('active');
+      sessionStorage.setItem('adminPass', pass); // نحفظ كلمة المرور مؤقتاً للجلسة فقط
+
+      // استدعاء دالة تحميل البيانات
+      loadInitialData();
+    } else {
+      showLoginError();
+    }
+  } catch (error) {
+    // إذا فشل فك التشفير (كلمة المرور خاطئة)
+    showLoginError();
+  }
+}
+
+function showLoginError() {
+  document.getElementById('loginErr').style.display = 'block';
 }
 
 function logout() {
   if (hasUnsavedChanges && !confirm('لديك تعديلات غير محفوظة! هل تريد الخروج؟')) return;
-  sessionStorage.removeItem('adminLogged');
+  sessionStorage.removeItem('adminPass');
+  JSONBIN_MASTER_KEY = '';
   location.reload();
 }
 
-if (sessionStorage.getItem('adminLogged') === '1') {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').classList.add('active');
-  setTimeout(loadInitialData, 50);
-}
+/* ============ دخول تلقائي عند تحديث الصفحة ============ */
+(function autoLogin() {
+  const savedPass = sessionStorage.getItem('adminPass');
+  if (!savedPass) return;
+
+  try {
+    const bytes = CryptoJS.AES.decrypt(ENCRYPTED_KEY, savedPass);
+    const decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
+
+    if (decryptedKey && decryptedKey.length > 0) {
+      JSONBIN_MASTER_KEY = decryptedKey;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').classList.add('active');
+      setTimeout(loadInitialData, 50);
+    } else {
+      sessionStorage.removeItem('adminPass');
+    }
+  } catch (e) {
+    sessionStorage.removeItem('adminPass');
+  }
+})();
 
 /* ============ تحميل البيانات (مُحصَّن) ============ */
 async function loadInitialData() {
+  if (!JSONBIN_MASTER_KEY) {
+    showToast('❌ لا يوجد مفتاح صالح — أعد تسجيل الدخول', 'bad');
+    return;
+  }
+
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
       headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
@@ -554,6 +613,11 @@ async function reloadFromCloud() {
 
 /* ============ حفظ في السحابة (مُحصَّن) ============ */
 async function saveToCloud() {
+  if (!JSONBIN_MASTER_KEY) {
+    showToast('❌ لا يوجد مفتاح صالح — أعد تسجيل الدخول', 'bad');
+    return;
+  }
+
   if (!dataLoadedFromCloud) {
     showToast('❌ لا يمكن الحفظ — لم يتم الاتصال بالسحابة. اضغط 🔄 تحديث وحاول مجدداً.', 'bad');
     return;
@@ -700,7 +764,6 @@ function renderImages() {
 }
 
 function addImage() {
-  // التحقق من إعدادات Cloudinary
   const cloudinaryConfigured = CLOUDINARY_CLOUD_NAME !== 'ضع_Cloud_Name_هنا' && CLOUDINARY_UPLOAD_PRESET !== 'ضع_اسم_الـ_Preset_هنا';
 
   openModal('📸 إضافة صورة', `
@@ -813,10 +876,8 @@ function addImage() {
 
     if (!dropZone || !fileInput) return;
 
-    // ضغط منطقة السحب
     dropZone.addEventListener('click', () => fileInput.click());
 
-    // عند اختيار ملف
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -840,7 +901,6 @@ function addImage() {
       reader.readAsDataURL(file);
     });
 
-    // السحب والإفلات
     dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropZone.classList.add('dragover');
@@ -863,7 +923,6 @@ function addImage() {
       }
     });
 
-    // إخفاء المعاينة عند كتابة رابط
     urlInput.addEventListener('input', () => {
       if (urlInput.value.trim()) {
         fileInput.value = '';
