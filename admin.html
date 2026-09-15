@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة التحكم</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-<!-- ============ مكتبة فك التشفير ============ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
@@ -20,7 +17,6 @@ body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--tex
 button { cursor: pointer; border: none; font-family: inherit; }
 input, textarea, select { font-family: inherit; }
 
-/* ============ شاشة الدخول ============ */
 #loginScreen {
   position: fixed; inset: 0; background: linear-gradient(135deg, #7c3aed, #ec4899);
   display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 9999;
@@ -45,7 +41,6 @@ input, textarea, select { font-family: inherit; }
 .login-err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
 .login-hint { font-size: 12px; color: var(--muted); margin-top: 16px; }
 
-/* ============ التخطيط ============ */
 .app { display: none; }
 .app.active { display: block; }
 
@@ -81,7 +76,6 @@ input, textarea, select { font-family: inherit; }
 .save-status.unsaved { background: #fee2e2; color: #991b1b; }
 .save-status.saving { background: #fef3c7; color: #92400e; }
 
-/* ============ التبويبات ============ */
 .tabs {
   background: #fff; padding: 0 24px; display: flex; gap: 4px; overflow-x: auto;
   border-bottom: 1px solid var(--border); position: sticky; top: 66px; z-index: 99;
@@ -93,7 +87,6 @@ input, textarea, select { font-family: inherit; }
 .tab:hover { color: var(--primary); }
 .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-/* ============ المحتوى ============ */
 .content { padding: 24px; max-width: 1100px; margin: 0 auto; }
 .panel { display: none; }
 .panel.active { display: block; animation: fadeIn 0.3s; }
@@ -137,21 +130,42 @@ input, textarea, select { font-family: inherit; }
 }
 .item-actions { display: flex; gap: 6px; }
 
-.img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+/* ============ شبكة الصور/الفيديو ============ */
+.img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .img-card {
   position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
-  background: var(--bg); border: 2px solid var(--border);
+  background: var(--bg); border: 2px solid var(--border); transition: all 0.3s;
 }
-.img-card img { width: 100%; height: 100%; object-fit: cover; }
+.img-card img, .img-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-card.is-main {
+  border-color: var(--warning);
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.25);
+}
 .img-card .remove-btn {
   position: absolute; top: 6px; left: 6px; width: 28px; height: 28px;
   background: var(--danger); color: #fff; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900;
+  z-index: 3;
 }
 .img-card .img-num {
-  position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.7); color: #fff;
+  position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.75); color: #fff;
   padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  z-index: 3;
 }
+.img-card .img-num.main { background: var(--warning); }
+.img-card .video-badge {
+  position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.75); color: #fff;
+  padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  z-index: 3;
+}
+.img-card .set-main-btn {
+  position: absolute; bottom: 6px; left: 6px;
+  background: rgba(124,58,237,0.95); color: #fff;
+  padding: 5px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+  transition: all 0.2s; z-index: 3;
+}
+.img-card .set-main-btn:hover { background: var(--primary); transform: scale(1.05); }
 
 .color-item {
   display: flex; align-items: center; gap: 10px; padding: 12px; margin-bottom: 10px;
@@ -187,7 +201,7 @@ input, textarea, select { font-family: inherit; }
 }
 .modal.active { opacity: 1; visibility: visible; }
 .modal-card {
-  background: #fff; border-radius: 16px; padding: 24px; max-width: 500px; width: 100%;
+  background: #fff; border-radius: 16px; padding: 24px; max-width: 560px; width: 100%;
   transform: scale(0.9); transition: transform 0.3s;
   max-height: 90vh; overflow-y: auto;
 }
@@ -204,7 +218,6 @@ input, textarea, select { font-family: inherit; }
 .info-box .icon { font-size: 22px; flex-shrink: 0; }
 .info-box strong { color: var(--primary); }
 
-/* ============ منطقة رفع الصور ============ */
 .drop-zone {
   border: 2px dashed var(--border);
   border-radius: 12px;
@@ -222,50 +235,68 @@ input, textarea, select { font-family: inherit; }
 .drop-zone-title { font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .drop-zone-hint { font-size: 12px; color: var(--muted); }
 
-.img-preview-box {
-  margin-top: 12px;
-  text-align: center;
-  display: none;
+.img-preview-box { margin-top: 12px; text-align: center; display: none; }
+.img-preview-box img, .img-preview-box video {
+  max-width: 100%; max-height: 220px; border-radius: 10px;
+  border: 2px solid var(--border); margin-bottom: 6px;
 }
-.img-preview-box img {
-  max-width: 100%;
-  max-height: 220px;
-  border-radius: 10px;
-  border: 2px solid var(--border);
-  margin-bottom: 6px;
-}
-.img-preview-name {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 600;
-}
+.img-preview-name { font-size: 12px; color: var(--muted); font-weight: 600; }
 
 .upload-status {
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  margin-top: 12px;
-  min-height: 20px;
+  font-size: 13px; font-weight: 700; text-align: center;
+  margin-top: 12px; min-height: 20px;
 }
 .upload-status.ok { color: var(--success); }
 .upload-status.bad { color: var(--danger); }
 .upload-status.loading { color: var(--warning); }
 
+/* معاينة متعددة */
+.multi-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.multi-preview-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid var(--border);
+  background: var(--bg);
+}
+.multi-preview-item img, .multi-preview-item video {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.multi-preview-item .badge {
+  position: absolute; top: 3px; right: 3px;
+  background: rgba(0,0,0,0.7); color: #fff;
+  padding: 2px 5px; border-radius: 20px;
+  font-size: 9px; font-weight: 700;
+}
+
 .divider-or {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 16px 0;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+  margin: 16px 0; color: var(--muted); font-size: 12px; font-weight: 700;
 }
 .divider-or::before, .divider-or::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
+  content: ''; flex: 1; height: 1px; background: var(--border);
 }
+
+/* ============ شعار المتجر ============ */
+.logo-uploader {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+.logo-preview-box {
+  width: 72px; height: 72px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; overflow: hidden; flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(124,58,237,0.3);
+  border: 2px solid var(--border);
+}
+.logo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+.logo-controls { flex: 1; min-width: 220px; }
 
 @media (max-width: 640px) {
   .topbar { padding: 12px 16px; }
@@ -310,7 +341,7 @@ input, textarea, select { font-family: inherit; }
   <div class="tabs">
     <button class="tab active" onclick="switchTab(this, 'store')">🏪 المتجر</button>
     <button class="tab" onclick="switchTab(this, 'product')">📦 المنتج</button>
-    <button class="tab" onclick="switchTab(this, 'images')">🖼️ الصور</button>
+    <button class="tab" onclick="switchTab(this, 'images')">🖼️ الوسائط</button>
     <button class="tab" onclick="switchTab(this, 'colors')">🎨 الألوان</button>
     <button class="tab" onclick="switchTab(this, 'features')">✨ المميزات</button>
     <button class="tab" onclick="switchTab(this, 'specs')">📋 المواصفات</button>
@@ -325,15 +356,33 @@ input, textarea, select { font-family: inherit; }
       <div class="section-card">
         <h2><span class="title">🏪 معلومات المتجر</span></h2>
         <div class="field"><label>اسم المتجر</label><input type="text" id="store-name"></div>
+
+        <!-- ⭐ شعار المتجر -->
+        <div class="field">
+          <label>شعار المتجر (إيموجي أو صورة أو رابط)</label>
+          <div class="logo-uploader">
+            <div class="logo-preview-box" id="logoPreview">
+              <span style="font-size:34px;">🛍️</span>
+            </div>
+            <div class="logo-controls">
+              <input type="text" id="store-logo" placeholder="إيموجي مثل 🛍️ أو رابط صورة https://..." style="margin-bottom:8px;">
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('logoFile').click()">📤 رفع صورة من الجهاز</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="resetLogo()">↺ إيموجي افتراضي</button>
+              </div>
+            </div>
+          </div>
+          <input type="file" id="logoFile" accept="image/*" style="display:none;">
+          <div class="field-hint">💡 اكتب إيموجي (🛍️)، أو الصق رابط صورة، أو ارفع صورة من جهازك — سيتم رفعها تلقائياً إلى Cloudinary.</div>
+          <div class="upload-status" id="logoUploadStatus"></div>
+        </div>
+
         <div class="row-2">
-          <div class="field"><label>الشعار</label><input type="text" id="store-logo"></div>
           <div class="field"><label>الهاتف</label><input type="text" id="store-phone" dir="ltr"></div>
+          <div class="field"><label>البريد الإلكتروني</label><input type="email" id="store-email" dir="ltr"></div>
         </div>
         <div class="field"><label>الشريط العلوي</label><input type="text" id="store-topBarText"></div>
-        <div class="row-2">
-          <div class="field"><label>البريد</label><input type="email" id="store-email" dir="ltr"></div>
-          <div class="field"><label>العنوان</label><input type="text" id="store-address"></div>
-        </div>
+        <div class="field"><label>العنوان</label><input type="text" id="store-address"></div>
         <div class="row-3">
           <div class="field"><label>فيسبوك</label><input type="text" id="store-facebook"></div>
           <div class="field"><label>إنستغرام</label><input type="text" id="store-instagram"></div>
@@ -373,16 +422,21 @@ input, textarea, select { font-family: inherit; }
       </div>
     </div>
 
-    <!-- الصور -->
+    <!-- الوسائط -->
     <div class="panel" id="panel-images">
       <div class="section-card">
         <h2>
-          <span class="title">🖼️ الصور</span>
-          <button class="btn btn-primary btn-sm" onclick="addImage()">➕ إضافة صورة</button>
+          <span class="title">🖼️ الوسائط (صور + فيديو)</span>
+          <button class="btn btn-primary btn-sm" onclick="addImage()">➕ إضافة ملفات</button>
         </h2>
         <div class="info-box">
           <span class="icon">💡</span>
-          <div>يمكنك رفع الصور مباشرة من جهازك (سحب وإفلات أو اختيار)، أو لصق رابط صورة. <strong>الصورة الأولى هي الرئيسية.</strong></div>
+          <div>
+            <strong>ميزات جديدة:</strong><br>
+            • يمكنك اختيار <strong>عدة ملفات دفعة واحدة</strong> (صور + فيديوهات).<br>
+            • اضغط <strong>«⭐ تعيين كرئيسية»</strong> على أي ملف لجعله الوسيط الرئيسي في المتجر.<br>
+            • الملف الأول في القائمة هو الرئيسي حالياً.
+          </div>
         </div>
         <div id="imagesList" class="img-grid"></div>
       </div>
@@ -474,24 +528,12 @@ const JSONBIN_BIN_ID = '6aa8b722ac6210605ace46ac';
 
 /* ========================================================
    🔐 النص المشفّر
-   ========================================================
-   هذا المفتاح مشفّر بكلمة المرور الخاصة بك عبر AES.
-   عند إدخال كلمة المرور الصحيحة في شاشة الدخول،
-   يتم فك التشفير واستخراج مفتاح JSONBin الحقيقي تلقائياً.
    ======================================================== */
 const ENCRYPTED_KEY = "U2FsdGVkX18ysDCJhHC7aNef2drW4zw1Y3ulSCbKRgFxxu+0DWq4E7yhgsW6lyrN73FFHJVlvU3BgAwpZn8640PiNopytQcDIPsZYWqQedw=";
-
-/* متغير فارغ سيأخذ قيمة المفتاح الحقيقي فقط إذا كانت كلمة المرور صحيحة */
 let JSONBIN_MASTER_KEY = "";
 
 /* ========================================================
-   ⚙️ إعدادات Cloudinary — ضع قيمك هنا
-   ========================================================
-   للحصول على القيم:
-   1. افتح console.cloudinary.com
-   2. انسخ Cloud Name من الصفحة الرئيسية
-   3. اذهب إلى Settings > Upload > Upload presets
-   4. أنشئ Preset جديد → Signing Mode = Unsigned → احفظ الاسم
+   ☁️ إعدادات Cloudinary
    ======================================================== */
 const CLOUDINARY_CLOUD_NAME = 'tybsvjvu';
 const CLOUDINARY_UPLOAD_PRESET = 'mouhcin_store';
@@ -503,42 +545,41 @@ let data = null;
 let hasUnsavedChanges = false;
 let dataLoadedFromCloud = false;
 
-/* ============ تسجيل الدخول (مشفّر) ============ */
+/* ============ أدوات مساعدة ============ */
+function isCloudinaryConfigured() {
+  return CLOUDINARY_CLOUD_NAME &&
+    CLOUDINARY_CLOUD_NAME !== 'ضع_Cloud_Name_هنا' &&
+    CLOUDINARY_UPLOAD_PRESET &&
+    CLOUDINARY_UPLOAD_PRESET !== 'ضع_اسم_الـ_Preset_هنا';
+}
+
+// كشف إذا كان الرابط فيديو (بناءً على الامتداد أو مسار Cloudinary)
+function isVideoUrl(url) {
+  if (!url) return false;
+  if (typeof url !== 'string') return false;
+  if (/\.(mp4|webm|mov|avi|mkv|ogg|m4v)(\?|#|$)/i.test(url)) return true;
+  if (url.includes('/video/upload/')) return true;
+  return false;
+}
+
+/* ============ تسجيل الدخول ============ */
 function login() {
   const pass = document.getElementById('passwordInput').value;
-
-  if (!pass) {
-    document.getElementById('loginErr').style.display = 'block';
-    return;
-  }
-
+  if (!pass) { document.getElementById('loginErr').style.display = 'block'; return; }
   try {
-    // محاولة فك التشفير باستخدام كلمة المرور المُدخلة
     const bytes = CryptoJS.AES.decrypt(ENCRYPTED_KEY, pass);
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
-
-    // إذا نجح فك التشفير (كلمة المرور صحيحة)
     if (decryptedKey && decryptedKey.length > 0) {
-      JSONBIN_MASTER_KEY = decryptedKey; // تفعيل مفتاح قاعدة البيانات
-
+      JSONBIN_MASTER_KEY = decryptedKey;
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').classList.add('active');
-      sessionStorage.setItem('adminPass', pass); // نحفظ كلمة المرور مؤقتاً للجلسة فقط
-
-      // استدعاء دالة تحميل البيانات
+      sessionStorage.setItem('adminPass', pass);
       loadInitialData();
-    } else {
-      showLoginError();
-    }
-  } catch (error) {
-    // إذا فشل فك التشفير (كلمة المرور خاطئة)
-    showLoginError();
-  }
+    } else { showLoginError(); }
+  } catch (error) { showLoginError(); }
 }
 
-function showLoginError() {
-  document.getElementById('loginErr').style.display = 'block';
-}
+function showLoginError() { document.getElementById('loginErr').style.display = 'block'; }
 
 function logout() {
   if (hasUnsavedChanges && !confirm('لديك تعديلات غير محفوظة! هل تريد الخروج؟')) return;
@@ -547,35 +588,27 @@ function logout() {
   location.reload();
 }
 
-/* ============ دخول تلقائي عند تحديث الصفحة ============ */
 (function autoLogin() {
   const savedPass = sessionStorage.getItem('adminPass');
   if (!savedPass) return;
-
   try {
     const bytes = CryptoJS.AES.decrypt(ENCRYPTED_KEY, savedPass);
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
-
     if (decryptedKey && decryptedKey.length > 0) {
       JSONBIN_MASTER_KEY = decryptedKey;
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').classList.add('active');
       setTimeout(loadInitialData, 50);
-    } else {
-      sessionStorage.removeItem('adminPass');
-    }
-  } catch (e) {
-    sessionStorage.removeItem('adminPass');
-  }
+    } else { sessionStorage.removeItem('adminPass'); }
+  } catch (e) { sessionStorage.removeItem('adminPass'); }
 })();
 
-/* ============ تحميل البيانات (مُحصَّن) ============ */
+/* ============ تحميل البيانات ============ */
 async function loadInitialData() {
   if (!JSONBIN_MASTER_KEY) {
     showToast('❌ لا يوجد مفتاح صالح — أعد تسجيل الدخول', 'bad');
     return;
   }
-
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
       headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
@@ -589,7 +622,6 @@ async function loadInitialData() {
   } catch (e) {
     console.warn('⚠️ fallback to products.js:', e);
     dataLoadedFromCloud = false;
-
     if (typeof PRODUCTS_DATA !== 'undefined') {
       data = JSON.parse(JSON.stringify(PRODUCTS_DATA));
     } else {
@@ -598,10 +630,8 @@ async function loadInitialData() {
         product: { name: '', shortName: '', category: '', price: 0, oldPrice: 0, deliveryPrice: 0, rating: 5, reviewsCount: 0, inStock: true, description: '', images: [], colors: [], features: [], specs: [], reviews: [], faqs: [] }
       };
     }
-
-    showToast('⚠️ تعذّر الاتصال بالسحابة — البيانات المعروضة نسخة محلية. لن تتمكن من الحفظ حتى يتصل.', 'bad');
+    showToast('⚠️ تعذّر الاتصال بالسحابة — البيانات المعروضة نسخة محلية.', 'bad');
   }
-
   loadAll();
   setSaveStatus(dataLoadedFromCloud ? 'saved' : 'unsaved');
 }
@@ -611,60 +641,36 @@ async function reloadFromCloud() {
   await loadInitialData();
 }
 
-/* ============ حفظ في السحابة (مُحصَّن) ============ */
+/* ============ حفظ في السحابة ============ */
 async function saveToCloud() {
-  if (!JSONBIN_MASTER_KEY) {
-    showToast('❌ لا يوجد مفتاح صالح — أعد تسجيل الدخول', 'bad');
-    return;
-  }
-
-  if (!dataLoadedFromCloud) {
-    showToast('❌ لا يمكن الحفظ — لم يتم الاتصال بالسحابة. اضغط 🔄 تحديث وحاول مجدداً.', 'bad');
-    return;
-  }
-
+  if (!JSONBIN_MASTER_KEY) { showToast('❌ لا يوجد مفتاح صالح', 'bad'); return; }
+  if (!dataLoadedFromCloud) { showToast('❌ لا يمكن الحفظ — اضغط 🔄 تحديث أولاً', 'bad'); return; }
   setSaveStatus('saving');
-
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_MASTER_KEY
-      },
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_MASTER_KEY },
       body: JSON.stringify(data)
     });
-
     if (!res.ok) throw new Error('Save failed: ' + res.status);
-
     hasUnsavedChanges = false;
     setSaveStatus('saved');
     showToast('✅ تم الحفظ! الزوار سيرون التحديث عند تحديث الصفحة', 'ok');
   } catch (e) {
     console.error(e);
     setSaveStatus('unsaved');
-    showToast('❌ فشل الحفظ! تحقّق من إعدادات JSONBin', 'bad');
+    showToast('❌ فشل الحفظ!', 'bad');
   }
 }
 
 function setSaveStatus(status) {
   const el = document.getElementById('saveStatus');
-  if (status === 'saved') {
-    el.className = 'save-status saved';
-    el.textContent = '✅ محفوظ في السحابة';
-  } else if (status === 'saving') {
-    el.className = 'save-status saving';
-    el.textContent = '⏳ جاري الحفظ...';
-  } else {
-    el.className = 'save-status unsaved';
-    el.textContent = '⚠️ تغييرات غير محفوظة';
-  }
+  if (status === 'saved') { el.className = 'save-status saved'; el.textContent = '✅ محفوظ في السحابة'; }
+  else if (status === 'saving') { el.className = 'save-status saving'; el.textContent = '⏳ جاري الحفظ...'; }
+  else { el.className = 'save-status unsaved'; el.textContent = '⚠️ تغييرات غير محفوظة'; }
 }
 
-function markUnsaved() {
-  hasUnsavedChanges = true;
-  setSaveStatus('unsaved');
-}
+function markUnsaved() { hasUnsavedChanges = true; setSaveStatus('unsaved'); }
 
 /* ============ التنقل ============ */
 function goHome() {
@@ -677,7 +683,6 @@ function previewSite() {
   window.open('index.html?preview=1', '_blank');
 }
 
-/* ============ التبويبات ============ */
 function switchTab(el, tabId) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -686,7 +691,7 @@ function switchTab(el, tabId) {
   if (tabId === 'json') updateJsonPreview();
 }
 
-/* ============ تحميل البيانات ============ */
+/* ============ تحميل كل البيانات ============ */
 function loadAll() {
   loadStore();
   loadProduct();
@@ -697,6 +702,7 @@ function loadAll() {
   renderReviews();
   renderFaqs();
   attachListeners();
+  updateLogoPreview();
 }
 
 function loadStore() {
@@ -728,6 +734,7 @@ function attachListeners() {
     el.oninput = () => {
       data.store[k] = el.value;
       if (k === 'name') document.getElementById('storeNameTop').textContent = el.value;
+      if (k === 'logo') updateLogoPreview();
       markUnsaved();
     };
   });
@@ -745,132 +752,219 @@ function attachListeners() {
     data.product.inStock = e.target.value === 'true';
     markUnsaved();
   };
+
+  // رفع الشعار
+  const logoFileEl = document.getElementById('logoFile');
+  if (logoFileEl && !logoFileEl.dataset.listenerAttached) {
+    logoFileEl.addEventListener('change', handleLogoUpload);
+    logoFileEl.dataset.listenerAttached = '1';
+  }
 }
 
-/* ============ الصور ============ */
+/* ============ ⭐ معاينة ورفع الشعار ============ */
+function updateLogoPreview() {
+  const val = (data && data.store && data.store.logo) || '🛍️';
+  const preview = document.getElementById('logoPreview');
+  if (!preview) return;
+  if (val.startsWith('http') || val.startsWith('data:')) {
+    preview.innerHTML = `<img src="${val}" alt="logo" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size:34px;\\'>🛍️</span>';">`;
+  } else {
+    preview.innerHTML = `<span style="font-size:34px;">${val}</span>`;
+  }
+}
+
+async function handleLogoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const status = document.getElementById('logoUploadStatus');
+
+  if (!isCloudinaryConfigured()) {
+    status.textContent = '❌ إعداد Cloudinary غير مكتمل';
+    status.className = 'upload-status bad';
+    e.target.value = '';
+    return;
+  }
+
+  status.textContent = '⏳ جاري رفع الشعار...';
+  status.className = 'upload-status loading';
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      method: 'POST', body: formData
+    });
+    const json = await res.json();
+
+    if (json.secure_url) {
+      data.store.logo = json.secure_url;
+      document.getElementById('store-logo').value = json.secure_url;
+      updateLogoPreview();
+      markUnsaved();
+      status.textContent = '✅ تم رفع الشعار بنجاح!';
+      status.className = 'upload-status ok';
+      showToast('✅ تم رفع الشعار', 'ok');
+    } else {
+      status.textContent = '❌ ' + (json.error?.message || 'فشل الرفع');
+      status.className = 'upload-status bad';
+    }
+  } catch (err) {
+    status.textContent = '❌ خطأ: ' + err.message;
+    status.className = 'upload-status bad';
+  }
+  e.target.value = '';
+}
+
+function resetLogo() {
+  data.store.logo = '🛍️';
+  document.getElementById('store-logo').value = '🛍️';
+  updateLogoPreview();
+  markUnsaved();
+}
+
+/* ============ 🖼️ الوسائط (صور + فيديو) ============ */
 function renderImages() {
   const list = document.getElementById('imagesList');
   if (!data.product.images || data.product.images.length === 0) {
-    list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px;grid-column:1/-1;">لا توجد صور.</p>';
+    list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px;grid-column:1/-1;">لا توجد وسائط بعد.</p>';
     return;
   }
-  list.innerHTML = data.product.images.map((url, i) => `
-    <div class="img-card">
-      <img src="${url}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>'">
-      <button class="remove-btn" onclick="removeImage(${i})">×</button>
-      <div class="img-num">${i === 0 ? '⭐ رئيسية' : '#' + (i + 1)}</div>
-    </div>
-  `).join('');
+  list.innerHTML = data.product.images.map((url, i) => {
+    const isVideo = isVideoUrl(url);
+    const previewHTML = isVideo
+      ? `<video src="${url}" muted preload="metadata"></video>`
+      : `<img src="${url}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖼️</text></svg>'">`;
+    return `
+      <div class="img-card ${i === 0 ? 'is-main' : ''}">
+        ${previewHTML}
+        ${isVideo ? '<div class="video-badge">🎬 فيديو</div>' : ''}
+        <button class="remove-btn" onclick="removeImage(${i})" title="حذف">×</button>
+        <div class="img-num ${i === 0 ? 'main' : ''}">${i === 0 ? '⭐ رئيسية' : '#' + (i + 1)}</div>
+        ${i !== 0 ? `<button class="set-main-btn" onclick="setMainImage(${i})" title="تعيين كرئيسية">⭐ تعيين</button>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function setMainImage(index) {
+  if (index < 0 || index >= data.product.images.length) return;
+  const item = data.product.images.splice(index, 1)[0];
+  data.product.images.unshift(item);
+  renderImages();
+  markUnsaved();
+  showToast('✅ تم تعيين الملف كرئيسي', 'ok');
 }
 
 function addImage() {
-  const cloudinaryConfigured = CLOUDINARY_CLOUD_NAME !== 'ضع_Cloud_Name_هنا' && CLOUDINARY_UPLOAD_PRESET !== 'ضع_اسم_الـ_Preset_هنا';
+  const cloudinaryConfigured = isCloudinaryConfigured();
 
-  openModal('📸 إضافة صورة', `
+  openModal('📸 إضافة صور / فيديوهات', `
     <div class="field">
-      <label>📁 اختر صورة من جهازك</label>
+      <label>📁 اختر ملفات من جهازك (يمكن اختيار عدة ملفات دفعة واحدة)</label>
       <div class="drop-zone" id="dropZone">
         <div class="drop-zone-icon">📤</div>
-        <div class="drop-zone-title">اضغط لاختيار صورة أو اسحبها هنا</div>
-        <div class="drop-zone-hint">PNG، JPG، WEBP، GIF — حتى 10 ميغابايت</div>
+        <div class="drop-zone-title">اضغط لاختيار ملفات أو اسحبها هنا</div>
+        <div class="drop-zone-hint">صور: PNG, JPG, WEBP, GIF | فيديو: MP4, WEBM, MOV — كل ملف حتى 50 ميغابايت</div>
       </div>
-      <input type="file" id="newImgFile" accept="image/*" style="display: none;">
-      <div class="img-preview-box" id="imgPreviewBox">
-        <img id="previewImg" src="" alt="معاينة">
-        <div class="img-preview-name" id="previewName"></div>
-      </div>
+      <input type="file" id="newMediaFile" accept="image/*,video/*" multiple style="display:none;">
+      <div class="multi-preview" id="multiPreview"></div>
     </div>
 
-    <div class="divider-or">أو</div>
+    <div class="divider-or">أو أضف رابطاً واحداً</div>
 
     <div class="field">
-      <label>🔗 الصق رابط صورة مباشرة</label>
+      <label>🔗 رابط صورة أو فيديو مباشر</label>
       <input type="text" id="newImgUrl" placeholder="https://..." dir="ltr">
-      <div class="field-hint">مثال: رابط صورة من الإنترنت</div>
+      <div class="field-hint">سيتم التعرف تلقائياً على النوع (صورة أو فيديو).</div>
     </div>
 
     <div class="upload-status" id="uploadStatus"></div>
   `, async () => {
-    const fileInput = document.getElementById('newImgFile');
+    const fileInput = document.getElementById('newMediaFile');
     const urlInput = document.getElementById('newImgUrl');
     const status = document.getElementById('uploadStatus');
 
-    // الحالة 1: صورة من الجهاز
-    if (fileInput.files && fileInput.files[0]) {
+    // الحالة 1: ملفات من الجهاز (متعددة)
+    if (fileInput.files && fileInput.files.length > 0) {
       if (!cloudinaryConfigured) {
-        status.textContent = '❌ لم يتم إعداد Cloudinary بعد! راجع التعليمات في الكود.';
+        status.textContent = '❌ لم يتم إعداد Cloudinary بعد!';
         status.className = 'upload-status bad';
         return false;
       }
 
-      const file = fileInput.files[0];
+      const files = Array.from(fileInput.files);
+      const MAX_SIZE = 50 * 1024 * 1024;
+      let success = 0, failed = 0;
 
-      if (file.size > 10 * 1024 * 1024) {
-        status.textContent = '❌ الصورة كبيرة جداً! الحد الأقصى 10 ميغابايت';
-        status.className = 'upload-status bad';
-        return false;
-      }
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.size > MAX_SIZE) { failed++; continue; }
 
-      status.textContent = '⏳ جاري رفع الصورة إلى Cloudinary...';
-      status.className = 'upload-status loading';
+        status.textContent = `⏳ جاري الرفع ${i + 1} من ${files.length} — ${file.name}`;
+        status.className = 'upload-status loading';
 
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-          method: 'POST',
-          body: formData
-        });
+          // استخدام /auto/upload للكشف التلقائي عن النوع (صورة/فيديو)
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+            method: 'POST', body: formData
+          });
+          const json = await res.json();
 
-        const json = await res.json();
-
-        if (json.secure_url) {
-          data.product.images.push(json.secure_url);
-          renderImages();
-          markUnsaved();
-          status.textContent = '✅ تم رفع الصورة بنجاح!';
-          status.className = 'upload-status ok';
-          showToast('✅ تمت إضافة الصورة', 'ok');
-          return true;
-        } else {
-          const errMsg = json.error?.message || 'فشل الرفع — تحقّق من إعدادات Cloudinary';
-          status.textContent = '❌ ' + errMsg;
-          status.className = 'upload-status bad';
-          showToast('❌ فشل رفع الصورة', 'bad');
-          return false;
+          if (json.secure_url) {
+            data.product.images.push(json.secure_url);
+            success++;
+          } else {
+            console.error('فشل:', json.error);
+            failed++;
+          }
+        } catch (err) {
+          console.error('خطأ:', err);
+          failed++;
         }
-      } catch (e) {
-        console.error(e);
-        status.textContent = '❌ خطأ في الاتصال: ' + e.message;
+      }
+
+      if (success > 0) {
+        renderImages();
+        markUnsaved();
+        status.textContent = `✅ تم رفع ${success} ملف بنجاح${failed ? ` (فشل ${failed})` : ''}`;
+        status.className = 'upload-status ok';
+        showToast(`✅ تمت إضافة ${success} ملف`, 'ok');
+        return true;
+      } else {
+        status.textContent = '❌ فشل رفع جميع الملفات';
         status.className = 'upload-status bad';
         return false;
       }
     }
-    // الحالة 2: رابط مباشر
+    // الحالة 2: رابط
     else if (urlInput.value.trim()) {
-      data.product.images.push(urlInput.value.trim());
+      const url = urlInput.value.trim();
+      data.product.images.push(url);
       renderImages();
       markUnsaved();
-      showToast('✅ تمت إضافة الصورة بالرابط', 'ok');
+      showToast('✅ تمت إضافة الرابط', 'ok');
       return true;
     }
-    // الحالة 3: لم يختر شيئاً
+    // الحالة 3: لا شيء
     else {
-      status.textContent = '⚠️ اختر صورة من جهازك أو الصق رابطاً';
+      status.textContent = '⚠️ اختر ملفات أو الصق رابطاً';
       status.className = 'upload-status bad';
       return false;
     }
   });
 
-  // إعداد منطقة السحب والإفلات بعد فتح الـ Modal
+  // إعداد منطقة السحب والإفلات + معاينة متعددة
   setTimeout(() => {
     const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('newImgFile');
-    const previewBox = document.getElementById('imgPreviewBox');
-    const previewImg = document.getElementById('previewImg');
-    const previewName = document.getElementById('previewName');
+    const fileInput = document.getElementById('newMediaFile');
+    const multiPreview = document.getElementById('multiPreview');
     const urlInput = document.getElementById('newImgUrl');
     const status = document.getElementById('uploadStatus');
 
@@ -879,26 +973,12 @@ function addImage() {
     dropZone.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      if (file.size > 10 * 1024 * 1024) {
-        status.textContent = '❌ الصورة كبيرة جداً! الحد الأقصى 10 ميغابايت';
-        status.className = 'upload-status bad';
-        fileInput.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        previewImg.src = ev.target.result;
-        previewName.textContent = `${file.name} — ${(file.size / 1024).toFixed(1)} KB`;
-        previewBox.style.display = 'block';
-        urlInput.value = '';
-        status.textContent = '';
-        status.className = 'upload-status';
-      };
-      reader.readAsDataURL(file);
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
+      renderMultiPreview(files);
+      urlInput.value = '';
+      status.textContent = '';
+      status.className = 'upload-status';
     });
 
     dropZone.addEventListener('dragover', (e) => {
@@ -906,34 +986,51 @@ function addImage() {
       dropZone.classList.add('dragover');
     });
 
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
-
-      const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type.startsWith('image/')) {
-        const dt = new DataTransfer();
-        dt.items.add(files[0]);
-        fileInput.files = dt.files;
-        fileInput.dispatchEvent(new Event('change'));
-      }
+      const files = Array.from(e.dataTransfer.files || []);
+      if (files.length === 0) return;
+      const dt = new DataTransfer();
+      files.forEach(f => dt.items.add(f));
+      fileInput.files = dt.files;
+      renderMultiPreview(files);
+      urlInput.value = '';
     });
+
+    function renderMultiPreview(files) {
+      multiPreview.innerHTML = files.map(f => {
+        const isVideo = f.type.startsWith('video/');
+        const badge = isVideo ? '🎬' : '🖼️';
+        const url = URL.createObjectURL(f);
+        const mediaHTML = isVideo
+          ? `<video src="${url}" muted></video>`
+          : `<img src="${url}" alt="">`;
+        return `
+          <div class="multi-preview-item">
+            ${mediaHTML}
+            <div class="badge">${badge}</div>
+          </div>
+        `;
+      }).join('');
+
+      status.textContent = `📎 ${files.length} ملف جاهز للرفع`;
+      status.className = 'upload-status loading';
+    }
 
     urlInput.addEventListener('input', () => {
       if (urlInput.value.trim()) {
         fileInput.value = '';
-        previewBox.style.display = 'none';
+        multiPreview.innerHTML = '';
       }
     });
   }, 100);
 }
 
 function removeImage(i) {
-  if (!confirm('حذف هذه الصورة؟')) return;
+  if (!confirm('حذف هذا الملف؟')) return;
   data.product.images.splice(i, 1);
   renderImages();
   markUnsaved();
@@ -955,24 +1052,9 @@ function renderColors() {
     </div>
   `).join('');
 }
-
-function addColor() {
-  data.product.colors.push({ name: 'لون جديد', hex: '#cccccc' });
-  renderColors();
-  markUnsaved();
-}
-
-function updateColor(i, key, value) {
-  data.product.colors[i][key] = value;
-  markUnsaved();
-}
-
-function removeColor(i) {
-  if (!confirm('حذف هذا اللون؟')) return;
-  data.product.colors.splice(i, 1);
-  renderColors();
-  markUnsaved();
-}
+function addColor() { data.product.colors.push({ name: 'لون جديد', hex: '#cccccc' }); renderColors(); markUnsaved(); }
+function updateColor(i, key, value) { data.product.colors[i][key] = value; markUnsaved(); }
+function removeColor(i) { if (!confirm('حذف هذا اللون؟')) return; data.product.colors.splice(i, 1); renderColors(); markUnsaved(); }
 
 /* ============ المميزات ============ */
 function renderFeatures() {
@@ -995,24 +1077,9 @@ function renderFeatures() {
     </div>
   `).join('');
 }
-
-function addFeature() {
-  data.product.features.push({ icon: '⭐', title: 'ميزة جديدة', desc: 'الوصف' });
-  renderFeatures();
-  markUnsaved();
-}
-
-function updateFeature(i, key, value) {
-  data.product.features[i][key] = value;
-  markUnsaved();
-}
-
-function removeFeature(i) {
-  if (!confirm('حذف؟')) return;
-  data.product.features.splice(i, 1);
-  renderFeatures();
-  markUnsaved();
-}
+function addFeature() { data.product.features.push({ icon: '⭐', title: 'ميزة جديدة', desc: 'الوصف' }); renderFeatures(); markUnsaved(); }
+function updateFeature(i, key, value) { data.product.features[i][key] = value; markUnsaved(); }
+function removeFeature(i) { if (!confirm('حذف؟')) return; data.product.features.splice(i, 1); renderFeatures(); markUnsaved(); }
 
 /* ============ المواصفات ============ */
 function renderSpecs() {
@@ -1035,24 +1102,9 @@ function renderSpecs() {
     </div>
   `).join('');
 }
-
-function addSpec() {
-  data.product.specs.push({ icon: '📌', value: 'قيمة', label: 'تسمية' });
-  renderSpecs();
-  markUnsaved();
-}
-
-function updateSpec(i, key, value) {
-  data.product.specs[i][key] = value;
-  markUnsaved();
-}
-
-function removeSpec(i) {
-  if (!confirm('حذف؟')) return;
-  data.product.specs.splice(i, 1);
-  renderSpecs();
-  markUnsaved();
-}
+function addSpec() { data.product.specs.push({ icon: '📌', value: 'قيمة', label: 'تسمية' }); renderSpecs(); markUnsaved(); }
+function updateSpec(i, key, value) { data.product.specs[i][key] = value; markUnsaved(); }
+function removeSpec(i) { if (!confirm('حذف؟')) return; data.product.specs.splice(i, 1); renderSpecs(); markUnsaved(); }
 
 /* ============ الآراء ============ */
 function renderReviews() {
@@ -1076,24 +1128,9 @@ function renderReviews() {
     </div>
   `).join('');
 }
-
-function addReview() {
-  data.product.reviews.push({ name: 'عميل', date: 'منذ يوم', stars: 5, text: 'رأي...' });
-  renderReviews();
-  markUnsaved();
-}
-
-function updateReview(i, key, value) {
-  data.product.reviews[i][key] = value;
-  markUnsaved();
-}
-
-function removeReview(i) {
-  if (!confirm('حذف؟')) return;
-  data.product.reviews.splice(i, 1);
-  renderReviews();
-  markUnsaved();
-}
+function addReview() { data.product.reviews.push({ name: 'عميل', date: 'منذ يوم', stars: 5, text: 'رأي...' }); renderReviews(); markUnsaved(); }
+function updateReview(i, key, value) { data.product.reviews[i][key] = value; markUnsaved(); }
+function removeReview(i) { if (!confirm('حذف؟')) return; data.product.reviews.splice(i, 1); renderReviews(); markUnsaved(); }
 
 /* ============ الأسئلة ============ */
 function renderFaqs() {
@@ -1113,35 +1150,19 @@ function renderFaqs() {
     </div>
   `).join('');
 }
-
-function addFaq() {
-  data.product.faqs.push({ q: 'سؤال؟', a: 'الجواب...' });
-  renderFaqs();
-  markUnsaved();
-}
-
-function updateFaq(i, key, value) {
-  data.product.faqs[i][key] = value;
-  markUnsaved();
-}
-
-function removeFaq(i) {
-  if (!confirm('حذف؟')) return;
-  data.product.faqs.splice(i, 1);
-  renderFaqs();
-  markUnsaved();
-}
+function addFaq() { data.product.faqs.push({ q: 'سؤال؟', a: 'الجواب...' }); renderFaqs(); markUnsaved(); }
+function updateFaq(i, key, value) { data.product.faqs[i][key] = value; markUnsaved(); }
+function removeFaq(i) { if (!confirm('حذف؟')) return; data.product.faqs.splice(i, 1); renderFaqs(); markUnsaved(); }
 
 /* ============ معاينة JSON ============ */
 function updateJsonPreview() {
   document.getElementById('jsonPreview').textContent = JSON.stringify(data, null, 2);
 }
 
-/* ============ Modal (يدعم async) ============ */
+/* ============ Modal ============ */
 function openModal(title, bodyHTML, onConfirm) {
   const existing = document.getElementById('dynamicModal');
   if (existing) existing.remove();
-
   const modal = document.createElement('div');
   modal.id = 'dynamicModal';
   modal.className = 'modal active';
@@ -1151,21 +1172,18 @@ function openModal(title, bodyHTML, onConfirm) {
       <div class="modal-body">${bodyHTML}</div>
       <div class="modal-actions">
         <button class="btn btn-outline" id="modalCancelBtn">إلغاء</button>
-        <button class="btn btn-primary" id="modalConfirmBtn">تأكيد</button>
+        <button class="btn btn-primary" id="modalConfirmBtn">تأكيد الرفع</button>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
-
   modal.onclick = (e) => { if (e.target === modal) closeModal(); };
   document.getElementById('modalCancelBtn').onclick = closeModal;
-
   document.getElementById('modalConfirmBtn').onclick = async () => {
     const btn = document.getElementById('modalConfirmBtn');
     const originalText = btn.textContent;
     btn.disabled = true;
     btn.textContent = '⏳ جاري المعالجة...';
-
     try {
       const result = onConfirm ? await onConfirm() : true;
       if (result === false) {
@@ -1200,19 +1218,13 @@ function showToast(msg, type = 'ok') {
 
 /* ============ تحذير عند الخروج ============ */
 window.addEventListener('beforeunload', (e) => {
-  if (hasUnsavedChanges) {
-    e.preventDefault();
-    e.returnValue = '';
-  }
+  if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
 });
 
-/* ============ اختصارات ============ */
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key.toLowerCase() === 's') {
     e.preventDefault();
-    if (document.getElementById('app').classList.contains('active')) {
-      saveToCloud();
-    }
+    if (document.getElementById('app').classList.contains('active')) saveToCloud();
   }
   if (e.key === 'Escape') closeModal();
 });
