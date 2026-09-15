@@ -840,15 +840,15 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
 </button>
 
-<!-- ⚠️ مهم: تحميل ملف البيانات -->
+<!-- ⚠️ مهم: تحميل ملف البيانات (نسخة احتياطية) -->
 <script src="products.js"></script>
 
 <script>
-    /* ========================================================
+/* ========================================================
    ⚙️ إعدادات JSONBin — ضع قيمك هنا
    ======================================================== */
-const JSONBIN_BIN_ID = '6aa89d161d04ca511c015119';           // ← من jsonbin.io
-const JSONBIN_ACCESS_KEY = '$2a$10$lxOSLzBKhOpS.1mro1r3POI13eOrW614ndN1nP1Azcl5GoY2aUCyi';    // ← مفتاح القراءة فقط
+const JSONBIN_BIN_ID = '6aa8a173ac6210605ace032f';
+const JSONBIN_ACCESS_KEY = '$2a$10$lxOSLzBKhOpS.1mro1r3POI13eOrW614ndN1nP1Azcl5GoY2aUCyi';
 
 /* ============ المتغيرات العامة ============ */
 let CFG, P, S;
@@ -865,6 +865,7 @@ async function loadConfig() {
       CFG = JSON.parse(preview);
       P = CFG.product;
       S = CFG.store;
+      selectedColor = (P.colors && P.colors.length > 0) ? P.colors[0].name : null;
       console.log('👁️ وضع المعاينة');
       return;
     }
@@ -892,6 +893,7 @@ async function loadConfig() {
   // تعيين اللون الافتراضي بعد تحميل البيانات
   selectedColor = (P.colors && P.colors.length > 0) ? P.colors[0].name : null;
 }
+
 /* ============ تنسيق السعر ============ */
 function formatPrice(p) { return p.toLocaleString('en-US') + ' د.ج'; }
 
@@ -953,7 +955,7 @@ function applyConfig() {
     </div>
   `).join('');
 
-  // الألوان - إخفاء القسم إذا كانت المصفوفة فارغة
+  // الألوان
   if (P.colors && P.colors.length > 0) {
     document.getElementById('colorBlock').style.display = 'block';
     document.getElementById('colorVal').textContent = P.colors[0].name;
@@ -1327,9 +1329,14 @@ document.getElementById('adminLoginModal').addEventListener('click', (e) => {
   if (e.target.id === 'adminLoginModal') closeAdminLogin();
 });
 
-/* ============ التهيئة ============ */
-document.addEventListener('DOMContentLoaded', () => {
+/* ============ التهيئة (المصحّحة) ============ */
+document.addEventListener('DOMContentLoaded', async () => {
   updateThemeIcon(document.body.classList.contains('dark'));
+
+  // ⏳ 1. حمّل البيانات من JSONBin أولاً (الإصلاح الأساسي)
+  await loadConfig();
+
+  // ✅ 2. ثم اعرض الموقع بالبيانات الحديثة
   applyConfig();
   updateCartDisplay();
 
