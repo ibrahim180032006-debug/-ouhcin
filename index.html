@@ -850,6 +850,11 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
 const JSONBIN_BIN_ID = '6aa8b722ac6210605ace46ac';
 const JSONBIN_ACCESS_KEY = '$2a$10$lxOSLzBKhOpS.1mro1r3POI13eOrW614ndN1nP1Azcl5GoY2aUCyi';
 
+/* ========================================================
+   📲 إعدادات تيليجرام — لإرسال الطلبيات إلى حسابك
+   ======================================================== */
+const TELEGRAM_BOT_TOKEN = '8969636351:AAGKRAu20IhHTaD8tn38Ug__pJK5JPt9-10';
+const TELEGRAM_CHAT_ID = '6283553550';
 
 let CFG, P, S;
 let cart = [];
@@ -896,6 +901,57 @@ async function loadConfig() {
 
 /* ============ تنسيق السعر ============ */
 function formatPrice(p) { return p.toLocaleString('en-US') + ' د.ج'; }
+
+/* ========================================================
+   📲 دالة إرسال الطلبية إلى تيليجرام
+   ======================================================== */
+async function sendOrderToTelegram(orderData) {
+  const message = `
+🛍️ <b>طلبية جديدة من المتجر!</b>
+━━━━━━━━━━━━━━━━
+👤 <b>الاسم:</b> ${orderData.firstName} ${orderData.lastName}
+📱 <b>الهاتف 1:</b> ${orderData.phone}
+📞 <b>الهاتف 2:</b> ${orderData.phone2}
+📍 <b>العنوان:</b> ${orderData.address}
+📝 <b>ملاحظات:</b> ${orderData.notes}
+━━━━━━━━━━━━━━━━
+📦 <b>المنتج:</b> ${orderData.product}
+🎨 <b>اللون:</b> ${orderData.color}
+🔢 <b>الكمية:</b> ${orderData.quantity}
+💰 <b>سعر المنتج:</b> ${orderData.subtotal.toLocaleString('en-US')} د.ج
+🚚 <b>التوصيل:</b> ${orderData.delivery.toLocaleString('en-US')} د.ج
+💵 <b>الإجمالي:</b> ${orderData.total.toLocaleString('en-US')} د.ج
+━━━━━━━━━━━━━━━━
+🧾 <b>رقم الطلب:</b> ${orderData.orderNumber}
+🕒 <b>التاريخ:</b> ${orderData.date}
+  `;
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    });
+
+    if (response.ok) {
+      console.log('✅ تم إرسال الطلبية إلى تيليجرام بنجاح');
+      return true;
+    } else {
+      const errText = await response.text();
+      console.error('❌ فشل في إرسال الطلبية إلى تيليجرام:', errText);
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ خطأ في الاتصال بتيليجرام:', error);
+    return false;
+  }
+}
 
 /* ============ تطبيق الإعدادات على الصفحة ============ */
 function applyConfig() {
@@ -1196,7 +1252,7 @@ function showToast(msg, type = 'ok') {
 }
 
 /* ============ تقديم الطلب ============ */
-function submitOrder(e) {
+async function submitOrder(e) {
   e.preventDefault();
 
   const firstName = document.getElementById('firstName');
@@ -1232,6 +1288,7 @@ function submitOrder(e) {
     orderNumber: 'ORD-' + Date.now().toString().slice(-8)
   };
 
+  // 1) حفظ محلياً
   const orders = JSON.parse(localStorage.getItem('orders') || '[]');
   orders.push(orderData);
   localStorage.setItem('orders', JSON.stringify(orders));
@@ -1242,19 +1299,32 @@ function submitOrder(e) {
   btn.disabled = true;
   txt.textContent = '⏳ جاري إرسال الطلب...';
 
+  // 2) إرسال إلى تيليجرام
+  const sent = await sendOrderToTelegram(orderData);
+
+  // 3) إظهار النتيجة للزبون
   setTimeout(() => {
     btn.disabled = false;
     txt.textContent = '✅ تأكيد الطلب - الدفع عند الاستلام';
-    document.getElementById('orderNum').textContent = 'رقم الطلب: #' + orderData.orderNumber;
-    document.getElementById('successModal').classList.add('active');
+
+    if (sent) {
+      document.getElementById('orderNum').textContent = 'رقم الطلب: #' + orderData.orderNumber;
+      document.getElementById('successModal').classList.add('active');
+      showToast('تم استلام طلبك بنجاح!', 'ok');
+    } else {
+      // حتى لو فشل الإرسال، الطلب محفوظ محلياً
+      document.getElementById('orderNum').textContent = 'رقم الطلب: #' + orderData.orderNumber;
+      document.getElementById('successModal').classList.add('active');
+      showToast('تم حفظ الطلب، سنتواصل معك قريباً', 'ok');
+    }
+
     document.getElementById('orderForm').reset();
     qty = 1;
     document.getElementById('qtyVal').textContent = '1';
     document.getElementById('calcQty').textContent = '1';
     document.getElementById('sumQty').textContent = '1';
     updatePrices();
-    showToast('تم استلام طلبك بنجاح!', 'ok');
-  }, 1200);
+  }, 800);
 }
 
 function closeSuccess() {
@@ -1329,14 +1399,14 @@ document.getElementById('adminLoginModal').addEventListener('click', (e) => {
   if (e.target.id === 'adminLoginModal') closeAdminLogin();
 });
 
-/* ============ التهيئة (المصحّحة) ============ */
+/* ============ التهيئة ============ */
 document.addEventListener('DOMContentLoaded', async () => {
   updateThemeIcon(document.body.classList.contains('dark'));
 
-  // ⏳ 1. حمّل البيانات من JSONBin أولاً (الإصلاح الأساسي)
+  // 1. حمّل البيانات من JSONBin أولاً
   await loadConfig();
 
-  // ✅ 2. ثم اعرض الموقع بالبيانات الحديثة
+  // 2. ثم اعرض الموقع بالبيانات الحديثة
   applyConfig();
   updateCartDisplay();
 
