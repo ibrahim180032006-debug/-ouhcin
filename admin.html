@@ -404,16 +404,17 @@ input, textarea, select { font-family: inherit; }
 /* ========================================================
    ⚙️ إعدادات JSONBin — ضع قيمك هنا
    ======================================================== */
-const JSONBIN_BIN_ID = '6aa89d161d04ca511c015119';        // ← نفس Bin ID
-const JSONBIN_MASTER_KEY = '$2a$10$zeE148A6KmxpwF43kyJLeOkYP658XLiMXcc0R/6gJqyqRNUSQsDyu'; // ← Master Key (كتابة)
+const JSONBIN_BIN_ID = '6aa8a173ac6210605ace032f';
+const JSONBIN_MASTER_KEY = '$2a$10$zeE148A6KmxpwF43kyJLeOkYP658XLiMXcc0R/6gJqyqRNUSQsDyu';
 
 /* ========================================================
    الإعدادات العامة
    ======================================================== */
-const ADMIN_PASSWORD = 'admin123';  // ← غيّر كلمة المرور
+const ADMIN_PASSWORD = 'admin123';
 
 let data = null;
 let hasUnsavedChanges = false;
+let dataLoadedFromCloud = false;
 
 /* ============ تسجيل الدخول ============ */
 function login() {
@@ -440,25 +441,36 @@ if (sessionStorage.getItem('adminLogged') === '1') {
   setTimeout(loadInitialData, 50);
 }
 
-/* ============ تحميل البيانات ============ */
+/* ============ تحميل البيانات (مُحصَّن) ============ */
 async function loadInitialData() {
-  // محاولة جلب من JSONBin
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
       headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
     });
-    if (!res.ok) throw new Error('Fetch failed');
+    if (!res.ok) throw new Error('Fetch failed: ' + res.status);
     const json = await res.json();
     data = json.record;
+    dataLoadedFromCloud = true;
     console.log('✅ تم التحميل من JSONBin');
-    showToast('تم تحديث البيانات من السحابة', 'ok');
+    showToast('✅ تم تحميل البيانات من السحابة', 'ok');
   } catch (e) {
     console.warn('⚠️ fallback to products.js:', e);
-    data = JSON.parse(JSON.stringify(PRODUCTS_DATA));
-    showToast('استخدمنا النسخة المحلية (products.js)', 'ok');
+    dataLoadedFromCloud = false;
+
+    if (typeof PRODUCTS_DATA !== 'undefined') {
+      data = JSON.parse(JSON.stringify(PRODUCTS_DATA));
+    } else {
+      data = {
+        store: { name: '', logo: '🛍️', topBarText: '', phone: '', email: '', address: '', facebook: '#', instagram: '#', whatsapp: '#' },
+        product: { name: '', shortName: '', category: '', price: 0, oldPrice: 0, deliveryPrice: 0, rating: 5, reviewsCount: 0, inStock: true, description: '', images: [], colors: [], features: [], specs: [], reviews: [], faqs: [] }
+      };
+    }
+
+    showToast('⚠️ تعذّر الاتصال بالسحابة — البيانات المعروضة نسخة محلية. لن تتمكن من الحفظ حتى يتصل.', 'bad');
   }
+
   loadAll();
-  setSaveStatus('saved');
+  setSaveStatus(dataLoadedFromCloud ? 'saved' : 'unsaved');
 }
 
 async function reloadFromCloud() {
@@ -466,8 +478,13 @@ async function reloadFromCloud() {
   await loadInitialData();
 }
 
-/* ============ حفظ في السحابة ============ */
+/* ============ حفظ في السحابة (مُحصَّن) ============ */
 async function saveToCloud() {
+  if (!dataLoadedFromCloud) {
+    showToast('❌ لا يمكن الحفظ — لم يتم الاتصال بالسحابة. اضغط 🔄 تحديث وحاول مجدداً.', 'bad');
+    return;
+  }
+
   setSaveStatus('saving');
 
   try {
@@ -877,14 +894,12 @@ window.addEventListener('beforeunload', (e) => {
 
 /* ============ اختصارات ============ */
 document.addEventListener('keydown', (e) => {
-  // Ctrl+S = حفظ
   if (e.ctrlKey && e.key.toLowerCase() === 's') {
     e.preventDefault();
     if (document.getElementById('app').classList.contains('active')) {
       saveToCloud();
     }
   }
-  // ESC = إغلاق modal
   if (e.key === 'Escape') closeModal();
 });
 </script>
