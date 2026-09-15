@@ -38,7 +38,7 @@ input, textarea, select { font-family: inherit; }
 .header { background: var(--bg-card); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 1000; transition: box-shadow 0.3s; }
 .header.scrolled { box-shadow: var(--shadow-md); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: var(--header-h); gap: 12px; }
-.store-name { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: var(--text); }
+.store-name { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; color: var(--text); cursor: default; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .store-logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(124,58,237,0.3); overflow: hidden; flex-shrink: 0; }
 .store-logo img { width: 100%; height: 100%; object-fit: cover; }
 .header-nav { display: flex; align-items: center; gap: 18px; }
@@ -255,9 +255,7 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
 .success-card p { color: var(--text-muted); margin-bottom: 16px; line-height: 1.8; font-size: 13px; }
 .order-num { background: var(--bg-alt); padding: 10px; border-radius: 10px; margin-bottom: 18px; font-weight: 800; color: var(--primary); font-size: 15px; border: 2px dashed var(--primary); }
 
-/* ============ زر الدخول للوحة التحكم ============ */
-.admin-login-btn { position: relative; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.3s; opacity: 0.55; }
-.admin-login-btn:hover { background: var(--bg-alt); color: var(--primary); opacity: 1; transform: translateY(-2px); }
+/* ============ نافذة تسجيل دخول المدير (مخفية) ============ */
 .admin-login-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; visibility: hidden; transition: all 0.3s; backdrop-filter: blur(6px); }
 .admin-login-modal.active { opacity: 1; visibility: visible; }
 .admin-login-card { background: var(--bg-card); border-radius: 20px; padding: 32px 28px; max-width: 400px; width: 100%; text-align: center; transform: scale(0.9); transition: transform 0.3s; box-shadow: var(--shadow-xl); border: 1px solid var(--border); }
@@ -275,8 +273,6 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
 .admin-btn-cancel:hover { border-color: var(--danger); color: var(--danger); }
 .admin-btn-confirm { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 6px 18px rgba(124,58,237,0.35); }
 .admin-btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(124,58,237,0.5); }
-.admin-login-hint { font-size: 11px; color: var(--text-muted); margin-top: 14px; line-height: 1.6; }
-.admin-login-hint kbd { background: var(--bg-alt); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; border: 1px solid var(--border); }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
 /* ============ استجابة ============ */
@@ -323,7 +319,8 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
 <header class="header" id="header">
   <div class="container">
     <div class="header-inner">
-      <a href="#" class="store-name">
+      <!-- شعار المتجر: 5 نقرات سريعة = فتح لوحة التحكم -->
+      <a href="#" class="store-name" onclick="return handleLogoClick(event)" title="">
         <div class="store-logo" id="storeLogo"></div>
         <span id="storeName"></span>
       </a>
@@ -348,12 +345,7 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
           </svg>
           <span class="cart-count" id="cartCount" style="display:none;">0</span>
         </button>
-        <button class="admin-login-btn" onclick="openAdminLogin()" title="دخول المدير">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-        </button>
+        <!-- ⚠️ تم إزالة زر الدخول للمدير من هنا -->
       </div>
     </div>
   </div>
@@ -701,7 +693,7 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
   <span id="toastText">تمت الإضافة بنجاح</span>
 </div>
 
-<!-- ============ نافذة تسجيل دخول المدير ============ -->
+<!-- ============ نافذة تسجيل دخول المدير (سرية) ============ -->
 <div class="admin-login-modal" id="adminLoginModal">
   <div class="admin-login-card">
     <div class="admin-login-icon">🔐</div>
@@ -721,10 +713,6 @@ body.dark .toast { background: #f1f5f9; color: #0f172a; }
     <div class="admin-login-actions">
       <button class="admin-btn-cancel" onclick="closeAdminLogin()">إلغاء</button>
       <button class="admin-btn-confirm" onclick="verifyAdminLogin()">دخول</button>
-    </div>
-
-    <div class="admin-login-hint">
-      اختصار سريع: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>A</kbd>
     </div>
   </div>
 </div>
@@ -758,6 +746,14 @@ const JSONBIN_ACCESS_KEY = '$2a$10$lxOSLzBKhOpS.1mro1r3POI13eOrW614ndN1nP1Azcl5G
    ======================================================== */
 const TELEGRAM_BOT_TOKEN = '8969636351:AAGKRAu20IhHTaD8tn38Ug__pJK5JPt9-10';
 const TELEGRAM_CHAT_ID = '5189499728';
+
+/* ========================================================
+   🔐 طرق الدخول السرية للوحة التحكم
+   ======================================================== */
+const ADMIN_PASSWORD = 'admin123';              // كلمة المرور
+const SECRET_NOTES_CODE = 'admin2024';          // الكود السري في حقل الملاحظات
+const LOGO_CLICKS_NEEDED = 5;                   // عدد النقرات على الشعار
+const LOGO_CLICK_TIMEOUT = 2000;                // الوقت المسموح بين النقرات (ms)
 
 /* ========================================================
    🇩🇿 بيانات الولايات والبلديات (58 ولاية)
@@ -1005,7 +1001,6 @@ function applyConfig() {
   document.getElementById('productTitle').textContent = P.name;
   document.getElementById('productDesc').textContent = P.description;
 
-  // ✅ عرض الوسيط الرئيسي (صورة أو فيديو)
   setMainMedia(P.images[0]);
 
   const fullStars = Math.floor(P.rating);
@@ -1033,7 +1028,6 @@ function applyConfig() {
   }
   document.getElementById('deliveryPrice').textContent = formatPrice(P.deliveryPrice);
 
-  // ✅ عرض المصغّرات مع دعم الفيديو
   const thumbs = document.getElementById('galleryThumbs');
   thumbs.innerHTML = P.images.map((url, i) => {
     const isVid = isVideoUrl(url);
@@ -1378,9 +1372,61 @@ window.addEventListener('scroll', () => {
   document.getElementById('scrollTop').classList.toggle('visible', window.scrollY > 400);
 });
 
-/* ============ دخول المدير إلى لوحة التحكم ============ */
-const ADMIN_PASSWORD = 'admin123';
+/* ========================================================
+   🔐 دخول المدير — 4 طرق سرية
+   ======================================================== */
 
+/* ---------- الطريقة 1: 5 نقرات سريعة على شعار المتجر ---------- */
+let logoClickCount = 0;
+let logoClickTimer = null;
+
+function handleLogoClick(e) {
+  e.preventDefault();
+
+  logoClickCount++;
+
+  // إعادة التصفير بعد ثانيتين من عدم النقر
+  clearTimeout(logoClickTimer);
+  logoClickTimer = setTimeout(() => {
+    logoClickCount = 0;
+  }, LOGO_CLICK_TIMEOUT);
+
+  // عند الوصول إلى 5 نقرات → افتح لوحة الدخول
+  if (logoClickCount >= LOGO_CLICKS_NEEDED) {
+    logoClickCount = 0;
+    clearTimeout(logoClickTimer);
+    openAdminLogin();
+    return false;
+  }
+
+  return false;
+}
+
+/* ---------- الطريقة 2: كود سري في حقل الملاحظات ---------- */
+function setupSecretNotesDetection() {
+  const notesField = document.getElementById('notes');
+  if (!notesField) return;
+
+  notesField.addEventListener('input', (e) => {
+    const value = e.target.value.trim();
+    if (value === SECRET_NOTES_CODE) {
+      e.target.value = ''; // امسح الحقل حتى لا يظهر أي شيء
+      openAdminLogin();
+    }
+  });
+}
+
+/* ---------- الطريقة 3: رابط URL ?admin=1 ---------- */
+(function checkAdminUrlParam() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('admin') === '1') {
+    window.addEventListener('load', () => {
+      setTimeout(openAdminLogin, 500);
+    });
+  }
+})();
+
+/* ---------- دوال لوحة الدخول ---------- */
 function openAdminLogin() {
   document.getElementById('adminLoginModal').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -1413,6 +1459,7 @@ function verifyAdminLogin() {
   }
 }
 
+/* ---------- الطريقة 4: اختصار لوحة المفاتيح Ctrl + Shift + A ---------- */
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
     e.preventDefault();
@@ -1425,6 +1472,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+/* إغلاق المودال عند النقر خارجه */
 document.getElementById('adminLoginModal').addEventListener('click', (e) => {
   if (e.target.id === 'adminLoginModal') closeAdminLogin();
 });
@@ -1440,6 +1488,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyConfig();
   updateCartDisplay();
 
+  // ✅ تفعيل الطريقة السرية في حقل الملاحظات
+  setupSecretNotesDetection();
+
   document.querySelectorAll('.field input, .field textarea').forEach(i => {
     i.addEventListener('input', () => i.classList.remove('err'));
   });
@@ -1451,6 +1502,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   console.log('✅ الموقع جاهز!');
+  console.log('🔐 طرق الدخول للوحة التحكم:');
+  console.log('   1. 5 نقرات سريعة على شعار المتجر');
+  console.log('   2. اكتب "' + SECRET_NOTES_CODE + '" في حقل الملاحظات');
+  console.log('   3. Ctrl + Shift + A');
+  console.log('   4. أضف ?admin=1 للرابط');
 });
 </script>
 </body>
