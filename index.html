@@ -742,12 +742,6 @@ const JSONBIN_BIN_ID = '6aa8b722ac6210605ace46ac';
 const JSONBIN_ACCESS_KEY = '$2a$10$lxOSLzBKhOpS.1mro1r3POI13eOrW614ndN1nP1Azcl5GoY2aUCyi';
 
 /* ========================================================
-   📲 إعدادات تيليجرام
-   ======================================================== */
-const TELEGRAM_BOT_TOKEN = '8969636351:AAGKRAu20IhHTaD8tn38Ug__pJK5JPt9-10';
-const TELEGRAM_CHAT_ID = '5189499728';
-
-/* ========================================================
    🔐 طرق الدخول السرية للوحة التحكم
    ======================================================== */
 const ADMIN_PASSWORD = 'admin123';              // كلمة المرور
@@ -933,8 +927,29 @@ function onBaladiyaChange() {
 
 /* ========================================================
    📲 دالة إرسال الطلبية إلى تيليجرام
+   تستخدم الإعدادات المحمّلة من السحابة (CFG.telegram)
+   وترسل إلى جميع الأيدي المضافة في لوحة التحكم
    ======================================================== */
 async function sendOrderToTelegram(orderData) {
+  const tg = (CFG && CFG.telegram) ? CFG.telegram : null;
+
+  if (!tg || !tg.enabled) {
+    console.warn('⚠️ إشعارات التلغرام معطّلة أو غير معدّة');
+    return false;
+  }
+
+  const token = (tg.botToken || '').trim();
+  const chatIds = (tg.chatIds || []).map(x => String(x).trim()).filter(x => x);
+
+  if (!token) {
+    console.warn('⚠️ لا يوجد توكن بوت في إعدادات التلغرام');
+    return false;
+  }
+  if (chatIds.length === 0) {
+    console.warn('⚠️ لا توجد أيدي محادثات في إعدادات التلغرام');
+    return false;
+  }
+
   const message = `
 🛍️ <b>طلبية جديدة من المتجر!</b>
 ━━━━━━━━━━━━━━━━
@@ -957,31 +972,39 @@ async function sendOrderToTelegram(orderData) {
 🕒 <b>التاريخ:</b> ${orderData.date}
   `;
 
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'HTML'
-      })
-    });
+  let successCount = 0;
+  let failCount = 0;
 
-    if (response.ok) {
-      console.log('✅ تم إرسال الطلبية إلى تيليجرام بنجاح');
-      return true;
-    } else {
-      const errText = await response.text();
-      console.error('❌ فشل في إرسال الطلبية إلى تيليجرام:', errText);
-      return false;
+  for (const chatId of chatIds) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'HTML'
+        })
+      });
+
+      if (response.ok) {
+        successCount++;
+        console.log(`✅ تم إرسال الطلبية إلى ${chatId}`);
+      } else {
+        failCount++;
+        const errText = await response.text();
+        console.error(`❌ فشل الإرسال إلى ${chatId}:`, errText);
+      }
+    } catch (error) {
+      failCount++;
+      console.error(`❌ خطأ في الاتصال بتيليجرام للآيدي ${chatId}:`, error);
     }
-  } catch (error) {
-    console.error('❌ خطأ في الاتصال بتيليجرام:', error);
-    return false;
   }
+
+  console.log(`📊 نتيجة الإرسال: ✅ ${successCount} | ❌ ${failCount}`);
+  return successCount > 0;
 }
 
 /* ============ تطبيق الإعدادات على الصفحة ============ */
@@ -1385,13 +1408,11 @@ function handleLogoClick(e) {
 
   logoClickCount++;
 
-  // إعادة التصفير بعد ثانيتين من عدم النقر
   clearTimeout(logoClickTimer);
   logoClickTimer = setTimeout(() => {
     logoClickCount = 0;
   }, LOGO_CLICK_TIMEOUT);
 
-  // عند الوصول إلى 5 نقرات → افتح لوحة الدخول
   if (logoClickCount >= LOGO_CLICKS_NEEDED) {
     logoClickCount = 0;
     clearTimeout(logoClickTimer);
@@ -1410,7 +1431,7 @@ function setupSecretNotesDetection() {
   notesField.addEventListener('input', (e) => {
     const value = e.target.value.trim();
     if (value === SECRET_NOTES_CODE) {
-      e.target.value = ''; // امسح الحقل حتى لا يظهر أي شيء
+      e.target.value = '';
       openAdminLogin();
     }
   });
@@ -1472,7 +1493,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-/* إغلاق المودال عند النقر خارجه */
 document.getElementById('adminLoginModal').addEventListener('click', (e) => {
   if (e.target.id === 'adminLoginModal') closeAdminLogin();
 });
@@ -1488,7 +1508,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyConfig();
   updateCartDisplay();
 
-  // ✅ تفعيل الطريقة السرية في حقل الملاحظات
   setupSecretNotesDetection();
 
   document.querySelectorAll('.field input, .field textarea').forEach(i => {
@@ -1507,6 +1526,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('   2. اكتب "' + SECRET_NOTES_CODE + '" في حقل الملاحظات');
   console.log('   3. Ctrl + Shift + A');
   console.log('   4. أضف ?admin=1 للرابط');
+
+  // 🔔 عرض حالة التلغرام في الـ console
+  if (CFG && CFG.telegram) {
+    const tg = CFG.telegram;
+    console.log('📱 حالة التلغرام:', tg.enabled ? '✅ مفعّل' : '❌ معطّل');
+    console.log('   عدد الأيدي:', (tg.chatIds || []).filter(x => x).length);
+  } else {
+    console.log('📱 التلغرام: لم يتم إعداده بعد — افتح لوحة التحكم وأضف التوكن والأيدي');
+  }
 });
 </script>
 </body>
