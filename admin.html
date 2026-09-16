@@ -298,6 +298,20 @@ input, textarea, select { font-family: inherit; }
 .logo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
 .logo-controls { flex: 1; min-width: 220px; }
 
+/* ============ التلغرام ============ */
+.tg-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(0,136,204,0.1); color: #0088cc;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+.tg-test-box {
+  margin-top: 18px; padding: 14px;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border-radius: 10px; border: 1px solid #86efac;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+}
+
 @media (max-width: 640px) {
   .topbar { padding: 12px 16px; }
   .topbar h1 { font-size: 14px; }
@@ -347,6 +361,7 @@ input, textarea, select { font-family: inherit; }
     <button class="tab" onclick="switchTab(this, 'specs')">📋 المواصفات</button>
     <button class="tab" onclick="switchTab(this, 'reviews')">⭐ الآراء</button>
     <button class="tab" onclick="switchTab(this, 'faqs')">❓ الأسئلة</button>
+    <button class="tab" onclick="switchTab(this, 'telegram')">📱 التلغرام</button>
     <button class="tab" onclick="switchTab(this, 'json')">💾 البيانات</button>
   </div>
 
@@ -501,6 +516,53 @@ input, textarea, select { font-family: inherit; }
       </div>
     </div>
 
+    <!-- 📱 التلغرام -->
+    <div class="panel" id="panel-telegram">
+      <div class="section-card">
+        <h2>
+          <span class="title">📱 إعدادات التلغرام</span>
+          <span class="tg-badge" id="tgStatusBadge">⚪ غير مفعّل</span>
+        </h2>
+
+        <div class="info-box">
+          <span class="icon">💡</span>
+          <div>
+            عند وصول طلب جديد سيُرسل إشعار تلقائي إلى <strong>جميع</strong> الأيدي المضافة بالأسفل.<br>
+            • للحصول على التوكن: افتح <strong>@BotFather</strong> في تلغرام → أنشئ بوت → انسخ التوكن.<br>
+            • للحصول على الآيدي: افتح <strong>@userinfobot</strong> وأرسل له أي رسالة.<br>
+            • ⚠️ يجب أن تبدأ محادثة مع البوت أولاً (ابحث عنه بالاسم واضغط Start) قبل إرسال أي رسالة.
+          </div>
+        </div>
+
+        <div class="field">
+          <label>🤖 توكن البوت (Bot Token)</label>
+          <input type="text" id="telegram-botToken" dir="ltr"
+                 placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
+          <div class="field-hint">يتم الحصول عليه من @BotFather</div>
+        </div>
+
+        <div class="field">
+          <label>حالة الإشعارات</label>
+          <select id="telegram-enabled">
+            <option value="true">✅ مفعّل</option>
+            <option value="false">❌ معطّل</option>
+          </select>
+        </div>
+
+        <h3 style="font-size:15px; font-weight:800; margin:22px 0 12px; display:flex; justify-content:space-between; align-items:center;">
+          <span>📋 أيدي المحادثات (Chat IDs)</span>
+          <button class="btn btn-primary btn-sm" onclick="addChatId()">➕ إضافة آيدي</button>
+        </h3>
+
+        <div id="chatIdsList"></div>
+
+        <div class="tg-test-box">
+          <button class="btn btn-success" onclick="testTelegram()">📤 إرسال رسالة تجريبية</button>
+          <span id="testTelegramStatus" style="font-weight:700; font-size:13px;"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- البيانات -->
     <div class="panel" id="panel-json">
       <div class="section-card">
@@ -553,7 +615,6 @@ function isCloudinaryConfigured() {
     CLOUDINARY_UPLOAD_PRESET !== 'ضع_اسم_الـ_Preset_هنا';
 }
 
-// كشف إذا كان الرابط فيديو (بناءً على الامتداد أو مسار Cloudinary)
 function isVideoUrl(url) {
   if (!url) return false;
   if (typeof url !== 'string') return false;
@@ -627,7 +688,8 @@ async function loadInitialData() {
     } else {
       data = {
         store: { name: '', logo: '🛍️', topBarText: '', phone: '', email: '', address: '', facebook: '#', instagram: '#', whatsapp: '#' },
-        product: { name: '', shortName: '', category: '', price: 0, oldPrice: 0, deliveryPrice: 0, rating: 5, reviewsCount: 0, inStock: true, description: '', images: [], colors: [], features: [], specs: [], reviews: [], faqs: [] }
+        product: { name: '', shortName: '', category: '', price: 0, oldPrice: 0, deliveryPrice: 0, rating: 5, reviewsCount: 0, inStock: true, description: '', images: [], colors: [], features: [], specs: [], reviews: [], faqs: [] },
+        telegram: { botToken: '', chatIds: [], enabled: true }
       };
     }
     showToast('⚠️ تعذّر الاتصال بالسحابة — البيانات المعروضة نسخة محلية.', 'bad');
@@ -695,6 +757,7 @@ function switchTab(el, tabId) {
 function loadAll() {
   loadStore();
   loadProduct();
+  loadTelegram();
   renderImages();
   renderColors();
   renderFeatures();
@@ -759,6 +822,21 @@ function attachListeners() {
     logoFileEl.addEventListener('change', handleLogoUpload);
     logoFileEl.dataset.listenerAttached = '1';
   }
+
+  // التلغرام
+  ensureTelegram();
+  const tToken = document.getElementById('telegram-botToken');
+  const tEnabled = document.getElementById('telegram-enabled');
+  if (tToken) tToken.oninput = () => {
+    data.telegram.botToken = tToken.value.trim();
+    updateTgStatusBadge();
+    markUnsaved();
+  };
+  if (tEnabled) tEnabled.onchange = () => {
+    data.telegram.enabled = tEnabled.value === 'true';
+    updateTgStatusBadge();
+    markUnsaved();
+  };
 }
 
 /* ============ ⭐ معاينة ورفع الشعار ============ */
@@ -825,6 +903,113 @@ function resetLogo() {
   markUnsaved();
 }
 
+/* ============ 📱 التلغرام ============ */
+function ensureTelegram() {
+  if (!data.telegram) {
+    data.telegram = { botToken: '', chatIds: [], enabled: true };
+  }
+  if (!Array.isArray(data.telegram.chatIds)) data.telegram.chatIds = [];
+}
+
+function loadTelegram() {
+  ensureTelegram();
+  document.getElementById('telegram-botToken').value = data.telegram.botToken || '';
+  document.getElementById('telegram-enabled').value = data.telegram.enabled ? 'true' : 'false';
+  renderChatIds();
+  updateTgStatusBadge();
+}
+
+function updateTgStatusBadge() {
+  const badge = document.getElementById('tgStatusBadge');
+  if (!badge) return;
+  ensureTelegram();
+  const hasToken = !!data.telegram.botToken;
+  const hasIds = data.telegram.chatIds.filter(x => x).length > 0;
+  if (data.telegram.enabled && hasToken && hasIds) {
+    badge.textContent = `✅ مفعّل (${data.telegram.chatIds.filter(x => x).length} آيدي)`;
+    badge.style.background = 'rgba(16,185,129,0.1)';
+    badge.style.color = '#059669';
+  } else {
+    badge.textContent = '⚪ غير مفعّل';
+    badge.style.background = 'rgba(107,114,128,0.1)';
+    badge.style.color = '#6b7280';
+  }
+}
+
+function renderChatIds() {
+  ensureTelegram();
+  const list = document.getElementById('chatIdsList');
+  if (data.telegram.chatIds.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted); text-align:center; padding:16px;">لا توجد أيدي مضافة بعد.</p>';
+    return;
+  }
+  list.innerHTML = data.telegram.chatIds.map((id, i) => `
+    <div class="color-item" style="gap:8px;">
+      <div class="item-num" style="flex-shrink:0;">${i + 1}</div>
+      <input type="text" dir="ltr" value="${id}" placeholder="123456789"
+             oninput="updateChatId(${i}, this.value)" style="flex:1;">
+      <button class="btn btn-danger btn-sm" onclick="removeChatId(${i})">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function addChatId() {
+  ensureTelegram();
+  data.telegram.chatIds.push('');
+  renderChatIds();
+  updateTgStatusBadge();
+  markUnsaved();
+}
+
+function updateChatId(i, value) {
+  data.telegram.chatIds[i] = value.trim();
+  updateTgStatusBadge();
+  markUnsaved();
+}
+
+function removeChatId(i) {
+  if (!confirm('حذف هذا الآيدي؟')) return;
+  data.telegram.chatIds.splice(i, 1);
+  renderChatIds();
+  updateTgStatusBadge();
+  markUnsaved();
+}
+
+async function testTelegram() {
+  ensureTelegram();
+  const status = document.getElementById('testTelegramStatus');
+  const token = data.telegram.botToken;
+  const ids = data.telegram.chatIds.filter(x => x);
+
+  if (!token) { status.textContent = '❌ لا يوجد توكن'; status.style.color = 'var(--danger)'; return; }
+  if (ids.length === 0) { status.textContent = '❌ لا توجد أيدي'; status.style.color = 'var(--danger)'; return; }
+
+  status.textContent = '⏳ جاري الإرسال...';
+  status.style.color = 'var(--warning)';
+
+  let ok = 0, fail = 0;
+  const errors = [];
+  for (const id of ids) {
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: id,
+          text: `✅ رسالة تجريبية من لوحة التحكم\n🕐 ${new Date().toLocaleString('ar-DZ')}`
+        })
+      });
+      const j = await res.json();
+      if (j.ok) ok++; else { fail++; errors.push(`${id}: ${j.description || 'خطأ'}`); }
+    } catch (e) { fail++; errors.push(`${id}: ${e.message}`); }
+  }
+  status.textContent = `✅ نجح: ${ok} | ❌ فشل: ${fail}`;
+  status.style.color = ok > 0 ? 'var(--success)' : 'var(--danger)';
+
+  if (errors.length) console.warn('Telegram test errors:', errors);
+  showToast(ok > 0 ? `✅ تم الإرسال إلى ${ok} محادثة` : '❌ فشل الإرسال', ok > 0 ? 'ok' : 'bad');
+}
+
 /* ============ 🖼️ الوسائط (صور + فيديو) ============ */
 function renderImages() {
   const list = document.getElementById('imagesList');
@@ -887,7 +1072,6 @@ function addImage() {
     const urlInput = document.getElementById('newImgUrl');
     const status = document.getElementById('uploadStatus');
 
-    // الحالة 1: ملفات من الجهاز (متعددة)
     if (fileInput.files && fileInput.files.length > 0) {
       if (!cloudinaryConfigured) {
         status.textContent = '❌ لم يتم إعداد Cloudinary بعد!';
@@ -911,7 +1095,6 @@ function addImage() {
           formData.append('file', file);
           formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
 
-          // استخدام /auto/upload للكشف التلقائي عن النوع (صورة/فيديو)
           const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
             method: 'POST', body: formData
           });
@@ -943,7 +1126,6 @@ function addImage() {
         return false;
       }
     }
-    // الحالة 2: رابط
     else if (urlInput.value.trim()) {
       const url = urlInput.value.trim();
       data.product.images.push(url);
@@ -952,7 +1134,6 @@ function addImage() {
       showToast('✅ تمت إضافة الرابط', 'ok');
       return true;
     }
-    // الحالة 3: لا شيء
     else {
       status.textContent = '⚠️ اختر ملفات أو الصق رابطاً';
       status.className = 'upload-status bad';
@@ -960,7 +1141,6 @@ function addImage() {
     }
   });
 
-  // إعداد منطقة السحب والإفلات + معاينة متعددة
   setTimeout(() => {
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('newMediaFile');
