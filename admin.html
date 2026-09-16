@@ -39,7 +39,6 @@ input, textarea, select { font-family: inherit; }
 }
 .login-box button:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(124,58,237,0.4); }
 .login-err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
-.login-hint { font-size: 12px; color: var(--muted); margin-top: 16px; }
 
 .app { display: none; }
 .app.active { display: block; }
@@ -67,6 +66,7 @@ input, textarea, select { font-family: inherit; }
 .btn-home { background: linear-gradient(135deg, #f59e0b, #f97316); color: #fff; }
 .btn-home:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(245,158,11,0.4); }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-xs { padding: 4px 9px; font-size: 11px; border-radius: 7px; }
 
 .save-status {
   font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px;
@@ -86,6 +86,11 @@ input, textarea, select { font-family: inherit; }
 }
 .tab:hover { color: var(--primary); }
 .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-badge {
+  display: inline-block; background: var(--danger); color: #fff;
+  font-size: 10px; font-weight: 800; padding: 1px 6px;
+  border-radius: 20px; margin-inline-start: 4px;
+}
 
 .content { padding: 24px; max-width: 1100px; margin: 0 auto; }
 .panel { display: none; }
@@ -130,6 +135,44 @@ input, textarea, select { font-family: inherit; }
 }
 .item-actions { display: flex; gap: 6px; }
 
+/* ============ التقييمات ============ */
+.rating-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px; margin-bottom: 12px; transition: all 0.25s;
+  border-inline-start: 4px solid var(--border);
+}
+.rating-card.pending { border-inline-start-color: var(--warning); background: #fffbeb; }
+.rating-card.approved { border-inline-start-color: var(--success); background: #f0fdf4; }
+.rating-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.rating-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+}
+.rating-user { display: flex; align-items: center; gap: 10px; }
+.rating-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 15px; flex-shrink: 0;
+}
+.rating-name { font-weight: 800; font-size: 14px; color: var(--text); }
+.rating-date { font-size: 11px; color: var(--muted); }
+.rating-stars { color: var(--warning); font-size: 18px; letter-spacing: 2px; }
+.rating-comment {
+  color: var(--text); font-size: 13px; line-height: 1.8;
+  padding: 10px 12px; background: rgba(255,255,255,0.7);
+  border-radius: 8px; margin-bottom: 10px; min-height: 40px;
+}
+.rating-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.rating-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 800;
+}
+.rating-badge.pending { background: #fef3c7; color: #92400e; }
+.rating-badge.approved { background: #d1fae5; color: #065f46; }
+
+.stars-preview { color: var(--warning); font-size: 22px; letter-spacing: 2px; }
+
 /* ============ شبكة الصور/الفيديو ============ */
 .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .img-card {
@@ -137,10 +180,7 @@ input, textarea, select { font-family: inherit; }
   background: var(--bg); border: 2px solid var(--border); transition: all 0.3s;
 }
 .img-card img, .img-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.img-card.is-main {
-  border-color: var(--warning);
-  box-shadow: 0 0 0 3px rgba(245,158,11,0.25);
-}
+.img-card.is-main { border-color: var(--warning); box-shadow: 0 0 0 3px rgba(245,158,11,0.25); }
 .img-card .remove-btn {
   position: absolute; top: 6px; left: 6px; width: 28px; height: 28px;
   background: var(--danger); color: #fff; border-radius: 50%;
@@ -149,23 +189,19 @@ input, textarea, select { font-family: inherit; }
 }
 .img-card .img-num {
   position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.75); color: #fff;
-  padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700;
-  z-index: 3;
+  padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 3;
 }
 .img-card .img-num.main { background: var(--warning); }
 .img-card .video-badge {
   position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.75); color: #fff;
-  padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700;
-  z-index: 3;
+  padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 3;
 }
 .img-card .set-main-btn {
   position: absolute; bottom: 6px; left: 6px;
   background: rgba(124,58,237,0.95); color: #fff;
   padding: 5px 10px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
-  transition: all 0.2s; z-index: 3;
+  font-size: 11px; font-weight: 700; transition: all 0.2s; z-index: 3;
 }
-.img-card .set-main-btn:hover { background: var(--primary); transform: scale(1.05); }
 
 .color-item {
   display: flex; align-items: center; gap: 10px; padding: 12px; margin-bottom: 10px;
@@ -202,8 +238,7 @@ input, textarea, select { font-family: inherit; }
 .modal.active { opacity: 1; visibility: visible; }
 .modal-card {
   background: #fff; border-radius: 16px; padding: 24px; max-width: 560px; width: 100%;
-  transform: scale(0.9); transition: transform 0.3s;
-  max-height: 90vh; overflow-y: auto;
+  transform: scale(0.9); transition: transform 0.3s; max-height: 90vh; overflow-y: auto;
 }
 .modal.active .modal-card { transform: scale(1); }
 .modal-card h3 { font-size: 18px; font-weight: 900; margin-bottom: 14px; }
@@ -219,28 +254,13 @@ input, textarea, select { font-family: inherit; }
 .info-box strong { color: var(--primary); }
 
 .drop-zone {
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  padding: 28px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  background: #f8fafc;
+  border: 2px dashed var(--border); border-radius: 12px; padding: 28px 20px;
+  text-align: center; cursor: pointer; transition: all 0.3s; background: #f8fafc;
 }
-.drop-zone:hover, .drop-zone.dragover {
-  border-color: var(--primary);
-  background: #ede9fe;
-}
+.drop-zone:hover, .drop-zone.dragover { border-color: var(--primary); background: #ede9fe; }
 .drop-zone-icon { font-size: 44px; margin-bottom: 10px; }
 .drop-zone-title { font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .drop-zone-hint { font-size: 12px; color: var(--muted); }
-
-.img-preview-box { margin-top: 12px; text-align: center; display: none; }
-.img-preview-box img, .img-preview-box video {
-  max-width: 100%; max-height: 220px; border-radius: 10px;
-  border: 2px solid var(--border); margin-bottom: 6px;
-}
-.img-preview-name { font-size: 12px; color: var(--muted); font-weight: 600; }
 
 .upload-status {
   font-size: 13px; font-weight: 700; text-align: center;
@@ -250,29 +270,18 @@ input, textarea, select { font-family: inherit; }
 .upload-status.bad { color: var(--danger); }
 .upload-status.loading { color: var(--warning); }
 
-/* معاينة متعددة */
 .multi-preview {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
-  margin-top: 12px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px; margin-top: 12px;
 }
 .multi-preview-item {
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-  border: 2px solid var(--border);
-  background: var(--bg);
+  aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+  position: relative; border: 2px solid var(--border); background: var(--bg);
 }
-.multi-preview-item img, .multi-preview-item video {
-  width: 100%; height: 100%; object-fit: cover;
-}
+.multi-preview-item img, .multi-preview-item video { width: 100%; height: 100%; object-fit: cover; }
 .multi-preview-item .badge {
-  position: absolute; top: 3px; right: 3px;
-  background: rgba(0,0,0,0.7); color: #fff;
-  padding: 2px 5px; border-radius: 20px;
-  font-size: 9px; font-weight: 700;
+  position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.7); color: #fff;
+  padding: 2px 5px; border-radius: 20px; font-size: 9px; font-weight: 700;
 }
 
 .divider-or {
@@ -283,10 +292,7 @@ input, textarea, select { font-family: inherit; }
   content: ''; flex: 1; height: 1px; background: var(--border);
 }
 
-/* ============ شعار المتجر ============ */
-.logo-uploader {
-  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-}
+.logo-uploader { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 .logo-preview-box {
   width: 72px; height: 72px; border-radius: 14px;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -298,12 +304,10 @@ input, textarea, select { font-family: inherit; }
 .logo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
 .logo-controls { flex: 1; min-width: 220px; }
 
-/* ============ التلغرام ============ */
 .tg-badge {
   display: inline-flex; align-items: center; gap: 4px;
   background: rgba(0,136,204,0.1); color: #0088cc;
-  padding: 3px 9px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700;
 }
 .tg-test-box {
   margin-top: 18px; padding: 14px;
@@ -311,6 +315,17 @@ input, textarea, select { font-family: inherit; }
   border-radius: 10px; border: 1px solid #86efac;
   display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
 }
+
+.stats-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-box {
+  background: #fff; border-radius: 12px; padding: 16px;
+  text-align: center; border: 1px solid var(--border);
+}
+.stat-num { font-size: 24px; font-weight: 900; color: var(--primary); }
+.stat-lbl { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; }
 
 @media (max-width: 640px) {
   .topbar { padding: 12px 16px; }
@@ -360,6 +375,7 @@ input, textarea, select { font-family: inherit; }
     <button class="tab" onclick="switchTab(this, 'features')">✨ المميزات</button>
     <button class="tab" onclick="switchTab(this, 'specs')">📋 المواصفات</button>
     <button class="tab" onclick="switchTab(this, 'reviews')">⭐ الآراء</button>
+    <button class="tab" onclick="switchTab(this, 'ratings')">💬 التقييمات <span class="tab-badge" id="pendingRatingsBadge" style="display:none;">0</span></button>
     <button class="tab" onclick="switchTab(this, 'faqs')">❓ الأسئلة</button>
     <button class="tab" onclick="switchTab(this, 'telegram')">📱 التلغرام</button>
     <button class="tab" onclick="switchTab(this, 'json')">💾 البيانات</button>
@@ -372,7 +388,6 @@ input, textarea, select { font-family: inherit; }
         <h2><span class="title">🏪 معلومات المتجر</span></h2>
         <div class="field"><label>اسم المتجر</label><input type="text" id="store-name"></div>
 
-        <!-- ⭐ شعار المتجر -->
         <div class="field">
           <label>شعار المتجر (إيموجي أو صورة أو رابط)</label>
           <div class="logo-uploader">
@@ -388,7 +403,7 @@ input, textarea, select { font-family: inherit; }
             </div>
           </div>
           <input type="file" id="logoFile" accept="image/*" style="display:none;">
-          <div class="field-hint">💡 اكتب إيموجي (🛍️)، أو الصق رابط صورة، أو ارفع صورة من جهازك — سيتم رفعها تلقائياً إلى Cloudinary.</div>
+          <div class="field-hint">💡 اكتب إيموجي (🛍️)، أو الصق رابط صورة، أو ارفع صورة من جهازك.</div>
           <div class="upload-status" id="logoUploadStatus"></div>
         </div>
 
@@ -447,10 +462,8 @@ input, textarea, select { font-family: inherit; }
         <div class="info-box">
           <span class="icon">💡</span>
           <div>
-            <strong>ميزات جديدة:</strong><br>
             • يمكنك اختيار <strong>عدة ملفات دفعة واحدة</strong> (صور + فيديوهات).<br>
-            • اضغط <strong>«⭐ تعيين كرئيسية»</strong> على أي ملف لجعله الوسيط الرئيسي في المتجر.<br>
-            • الملف الأول في القائمة هو الرئيسي حالياً.
+            • اضغط <strong>«⭐ تعيين كرئيسية»</strong> على أي ملف لجعله الوسيط الرئيسي.
           </div>
         </div>
         <div id="imagesList" class="img-grid"></div>
@@ -464,10 +477,6 @@ input, textarea, select { font-family: inherit; }
           <span class="title">🎨 الألوان</span>
           <button class="btn btn-primary btn-sm" onclick="addColor()">➕ إضافة لون</button>
         </h2>
-        <div class="info-box">
-          <span class="icon">💡</span>
-          <div>منتج بدون ألوان؟ احذف كل الألوان وسيختفي القسم تلقائياً.</div>
-        </div>
         <div id="colorsList"></div>
       </div>
     </div>
@@ -505,6 +514,53 @@ input, textarea, select { font-family: inherit; }
       </div>
     </div>
 
+    <!-- 💬 التقييمات (جديد) -->
+    <div class="panel" id="panel-ratings">
+      <div class="section-card">
+        <h2>
+          <span class="title">💬 التقييمات الواردة</span>
+          <button class="btn btn-outline btn-sm" onclick="addManualRating()">➕ إضافة يدوياً</button>
+        </h2>
+
+        <div class="stats-row" id="ratingsStats">
+          <div class="stat-box">
+            <div class="stat-num" id="statPending">0</div>
+            <div class="stat-lbl">في الانتظار</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statApproved">0</div>
+            <div class="stat-lbl">معتمدة</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statAvg">0</div>
+            <div class="stat-lbl">متوسط التقييم</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statTotal">0</div>
+            <div class="stat-lbl">الإجمالي</div>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <span class="icon">💡</span>
+          <div>
+            التقييمات المرسلة من الزوار تظهر هنا بحالة <strong>«في الانتظار»</strong>.<br>
+            اضغط <strong>✅ اعتماد</strong> لعرضها على الموقع، أو <strong>❌ رفض</strong> لحذفها.<br>
+            بعد الاعتماد، اضغط <strong>💾 حفظ في السحابة</strong> لتظهر للزوار.
+          </div>
+        </div>
+
+        <div id="pendingRatingsList"></div>
+      </div>
+
+      <div class="section-card">
+        <h2>
+          <span class="title">✅ التقييمات المعتمدة (تظهر على الموقع)</span>
+        </h2>
+        <div id="approvedRatingsList"></div>
+      </div>
+    </div>
+
     <!-- الأسئلة -->
     <div class="panel" id="panel-faqs">
       <div class="section-card">
@@ -527,18 +583,14 @@ input, textarea, select { font-family: inherit; }
         <div class="info-box">
           <span class="icon">💡</span>
           <div>
-            عند وصول طلب جديد سيُرسل إشعار تلقائي إلى <strong>جميع</strong> الأيدي المضافة بالأسفل.<br>
-            • للحصول على التوكن: افتح <strong>@BotFather</strong> في تلغرام → أنشئ بوت → انسخ التوكن.<br>
-            • للحصول على الآيدي: افتح <strong>@userinfobot</strong> وأرسل له أي رسالة.<br>
-            • ⚠️ يجب أن تبدأ محادثة مع البوت أولاً (ابحث عنه بالاسم واضغط Start) قبل إرسال أي رسالة.
+            عند وصول طلب أو تقييم جديد سيُرسل إشعار تلقائي إلى <strong>جميع</strong> الأيدي المضافة بالأسفل.<br>
+            • <strong>@BotFather</strong> للحصول على التوكن • <strong>@userinfobot</strong> للحصول على الآيدي.
           </div>
         </div>
 
         <div class="field">
           <label>🤖 توكن البوت (Bot Token)</label>
-          <input type="text" id="telegram-botToken" dir="ltr"
-                 placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
-          <div class="field-hint">يتم الحصول عليه من @BotFather</div>
+          <input type="text" id="telegram-botToken" dir="ltr" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
         </div>
 
         <div class="field">
@@ -568,7 +620,7 @@ input, textarea, select { font-family: inherit; }
       <div class="section-card">
         <h2><span class="title">💾 البيانات الحالية</span></h2>
         <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">
-          اضغط <strong>💾 حفظ في السحابة</strong> لحفظ كل التغييرات. سيراها الزوار عند تحديث الصفحة.
+          اضغط <strong>💾 حفظ في السحابة</strong> لحفظ كل التغييرات.
         </p>
         <div class="json-preview" id="jsonPreview"></div>
       </div>
@@ -609,18 +661,25 @@ let dataLoadedFromCloud = false;
 
 /* ============ أدوات مساعدة ============ */
 function isCloudinaryConfigured() {
-  return CLOUDINARY_CLOUD_NAME &&
-    CLOUDINARY_CLOUD_NAME !== 'ضع_Cloud_Name_هنا' &&
-    CLOUDINARY_UPLOAD_PRESET &&
-    CLOUDINARY_UPLOAD_PRESET !== 'ضع_اسم_الـ_Preset_هنا';
+  return CLOUDINARY_CLOUD_NAME && CLOUDINARY_CLOUD_NAME !== 'ضع_Cloud_Name_هنا' &&
+    CLOUDINARY_UPLOAD_PRESET && CLOUDINARY_UPLOAD_PRESET !== 'ضع_اسم_الـ_Preset_هنا';
 }
 
 function isVideoUrl(url) {
-  if (!url) return false;
-  if (typeof url !== 'string') return false;
+  if (!url || typeof url !== 'string') return false;
   if (/\.(mp4|webm|mov|avi|mkv|ogg|m4v)(\?|#|$)/i.test(url)) return true;
   if (url.includes('/video/upload/')) return true;
   return false;
+}
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /* ============ تسجيل الدخول ============ */
@@ -667,7 +726,7 @@ function logout() {
 /* ============ تحميل البيانات ============ */
 async function loadInitialData() {
   if (!JSONBIN_MASTER_KEY) {
-    showToast('❌ لا يوجد مفتاح صالح — أعد تسجيل الدخول', 'bad');
+    showToast('❌ لا يوجد مفتاح صالح', 'bad');
     return;
   }
   try {
@@ -678,10 +737,9 @@ async function loadInitialData() {
     const json = await res.json();
     data = json.record;
     dataLoadedFromCloud = true;
-    console.log('✅ تم التحميل من JSONBin');
     showToast('✅ تم تحميل البيانات من السحابة', 'ok');
   } catch (e) {
-    console.warn('⚠️ fallback to products.js:', e);
+    console.warn('⚠️ fallback:', e);
     dataLoadedFromCloud = false;
     if (typeof PRODUCTS_DATA !== 'undefined') {
       data = JSON.parse(JSON.stringify(PRODUCTS_DATA));
@@ -692,8 +750,13 @@ async function loadInitialData() {
         telegram: { botToken: '', chatIds: [], enabled: true }
       };
     }
-    showToast('⚠️ تعذّر الاتصال بالسحابة — البيانات المعروضة نسخة محلية.', 'bad');
+    showToast('⚠️ تعذّر الاتصال — نسخة محلية', 'bad');
   }
+  // ضمان وجود الحقول الجديدة
+  if (!data.telegram) data.telegram = { botToken: '', chatIds: [], enabled: true };
+  if (!Array.isArray(data.telegram.chatIds)) data.telegram.chatIds = [];
+  if (!Array.isArray(data.ratings)) data.ratings = [];
+
   loadAll();
   setSaveStatus(dataLoadedFromCloud ? 'saved' : 'unsaved');
 }
@@ -705,8 +768,8 @@ async function reloadFromCloud() {
 
 /* ============ حفظ في السحابة ============ */
 async function saveToCloud() {
-  if (!JSONBIN_MASTER_KEY) { showToast('❌ لا يوجد مفتاح صالح', 'bad'); return; }
-  if (!dataLoadedFromCloud) { showToast('❌ لا يمكن الحفظ — اضغط 🔄 تحديث أولاً', 'bad'); return; }
+  if (!JSONBIN_MASTER_KEY) { showToast('❌ لا يوجد مفتاح', 'bad'); return; }
+  if (!dataLoadedFromCloud) { showToast('❌ اضغط 🔄 تحديث أولاً', 'bad'); return; }
   setSaveStatus('saving');
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
@@ -717,7 +780,7 @@ async function saveToCloud() {
     if (!res.ok) throw new Error('Save failed: ' + res.status);
     hasUnsavedChanges = false;
     setSaveStatus('saved');
-    showToast('✅ تم الحفظ! الزوار سيرون التحديث عند تحديث الصفحة', 'ok');
+    showToast('✅ تم الحفظ!', 'ok');
   } catch (e) {
     console.error(e);
     setSaveStatus('unsaved');
@@ -751,6 +814,7 @@ function switchTab(el, tabId) {
   el.classList.add('active');
   document.getElementById('panel-' + tabId).classList.add('active');
   if (tabId === 'json') updateJsonPreview();
+  if (tabId === 'ratings') renderRatings();
 }
 
 /* ============ تحميل كل البيانات ============ */
@@ -758,11 +822,13 @@ function loadAll() {
   loadStore();
   loadProduct();
   loadTelegram();
+  ensureRatings();
   renderImages();
   renderColors();
   renderFeatures();
   renderSpecs();
   renderReviews();
+  renderRatings();   // ✅ التقييمات
   renderFaqs();
   attachListeners();
   updateLogoPreview();
@@ -816,30 +882,20 @@ function attachListeners() {
     markUnsaved();
   };
 
-  // رفع الشعار
   const logoFileEl = document.getElementById('logoFile');
   if (logoFileEl && !logoFileEl.dataset.listenerAttached) {
     logoFileEl.addEventListener('change', handleLogoUpload);
     logoFileEl.dataset.listenerAttached = '1';
   }
 
-  // التلغرام
   ensureTelegram();
   const tToken = document.getElementById('telegram-botToken');
   const tEnabled = document.getElementById('telegram-enabled');
-  if (tToken) tToken.oninput = () => {
-    data.telegram.botToken = tToken.value.trim();
-    updateTgStatusBadge();
-    markUnsaved();
-  };
-  if (tEnabled) tEnabled.onchange = () => {
-    data.telegram.enabled = tEnabled.value === 'true';
-    updateTgStatusBadge();
-    markUnsaved();
-  };
+  if (tToken) tToken.oninput = () => { data.telegram.botToken = tToken.value.trim(); updateTgStatusBadge(); markUnsaved(); };
+  if (tEnabled) tEnabled.onchange = () => { data.telegram.enabled = tEnabled.value === 'true'; updateTgStatusBadge(); markUnsaved(); };
 }
 
-/* ============ ⭐ معاينة ورفع الشعار ============ */
+/* ============ الشعار ============ */
 function updateLogoPreview() {
   const val = (data && data.store && data.store.logo) || '🛍️';
   const preview = document.getElementById('logoPreview');
@@ -854,35 +910,26 @@ function updateLogoPreview() {
 async function handleLogoUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-
   const status = document.getElementById('logoUploadStatus');
-
   if (!isCloudinaryConfigured()) {
     status.textContent = '❌ إعداد Cloudinary غير مكتمل';
     status.className = 'upload-status bad';
-    e.target.value = '';
-    return;
+    e.target.value = ''; return;
   }
-
   status.textContent = '⏳ جاري رفع الشعار...';
   status.className = 'upload-status loading';
-
   try {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-      method: 'POST', body: formData
-    });
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
     const json = await res.json();
-
     if (json.secure_url) {
       data.store.logo = json.secure_url;
       document.getElementById('store-logo').value = json.secure_url;
       updateLogoPreview();
       markUnsaved();
-      status.textContent = '✅ تم رفع الشعار بنجاح!';
+      status.textContent = '✅ تم رفع الشعار!';
       status.className = 'upload-status ok';
       showToast('✅ تم رفع الشعار', 'ok');
     } else {
@@ -905,9 +952,7 @@ function resetLogo() {
 
 /* ============ 📱 التلغرام ============ */
 function ensureTelegram() {
-  if (!data.telegram) {
-    data.telegram = { botToken: '', chatIds: [], enabled: true };
-  }
+  if (!data.telegram) data.telegram = { botToken: '', chatIds: [], enabled: true };
   if (!Array.isArray(data.telegram.chatIds)) data.telegram.chatIds = [];
 }
 
@@ -946,71 +991,212 @@ function renderChatIds() {
   list.innerHTML = data.telegram.chatIds.map((id, i) => `
     <div class="color-item" style="gap:8px;">
       <div class="item-num" style="flex-shrink:0;">${i + 1}</div>
-      <input type="text" dir="ltr" value="${id}" placeholder="123456789"
-             oninput="updateChatId(${i}, this.value)" style="flex:1;">
+      <input type="text" dir="ltr" value="${escapeHtml(id)}" placeholder="123456789" oninput="updateChatId(${i}, this.value)" style="flex:1;">
       <button class="btn btn-danger btn-sm" onclick="removeChatId(${i})">🗑️</button>
     </div>
   `).join('');
 }
 
-function addChatId() {
-  ensureTelegram();
-  data.telegram.chatIds.push('');
-  renderChatIds();
-  updateTgStatusBadge();
-  markUnsaved();
-}
-
-function updateChatId(i, value) {
-  data.telegram.chatIds[i] = value.trim();
-  updateTgStatusBadge();
-  markUnsaved();
-}
-
-function removeChatId(i) {
-  if (!confirm('حذف هذا الآيدي؟')) return;
-  data.telegram.chatIds.splice(i, 1);
-  renderChatIds();
-  updateTgStatusBadge();
-  markUnsaved();
-}
+function addChatId() { ensureTelegram(); data.telegram.chatIds.push(''); renderChatIds(); updateTgStatusBadge(); markUnsaved(); }
+function updateChatId(i, value) { data.telegram.chatIds[i] = value.trim(); updateTgStatusBadge(); markUnsaved(); }
+function removeChatId(i) { if (!confirm('حذف هذا الآيدي؟')) return; data.telegram.chatIds.splice(i, 1); renderChatIds(); updateTgStatusBadge(); markUnsaved(); }
 
 async function testTelegram() {
   ensureTelegram();
   const status = document.getElementById('testTelegramStatus');
   const token = data.telegram.botToken;
   const ids = data.telegram.chatIds.filter(x => x);
-
   if (!token) { status.textContent = '❌ لا يوجد توكن'; status.style.color = 'var(--danger)'; return; }
   if (ids.length === 0) { status.textContent = '❌ لا توجد أيدي'; status.style.color = 'var(--danger)'; return; }
-
   status.textContent = '⏳ جاري الإرسال...';
   status.style.color = 'var(--warning)';
-
   let ok = 0, fail = 0;
-  const errors = [];
   for (const id of ids) {
     try {
       const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: id,
-          text: `✅ رسالة تجريبية من لوحة التحكم\n🕐 ${new Date().toLocaleString('ar-DZ')}`
-        })
+        body: JSON.stringify({ chat_id: id, text: `✅ رسالة تجريبية\n🕐 ${new Date().toLocaleString('ar-DZ')}` })
       });
       const j = await res.json();
-      if (j.ok) ok++; else { fail++; errors.push(`${id}: ${j.description || 'خطأ'}`); }
-    } catch (e) { fail++; errors.push(`${id}: ${e.message}`); }
+      if (j.ok) ok++; else fail++;
+    } catch (e) { fail++; }
   }
   status.textContent = `✅ نجح: ${ok} | ❌ فشل: ${fail}`;
   status.style.color = ok > 0 ? 'var(--success)' : 'var(--danger)';
-
-  if (errors.length) console.warn('Telegram test errors:', errors);
-  showToast(ok > 0 ? `✅ تم الإرسال إلى ${ok} محادثة` : '❌ فشل الإرسال', ok > 0 ? 'ok' : 'bad');
+  showToast(ok > 0 ? `✅ تم الإرسال إلى ${ok}` : '❌ فشل الإرسال', ok > 0 ? 'ok' : 'bad');
 }
 
-/* ============ 🖼️ الوسائط (صور + فيديو) ============ */
+/* ========================================================
+   💬 التقييمات — جديد
+   ======================================================== */
+function ensureRatings() {
+  if (!Array.isArray(data.ratings)) data.ratings = [];
+}
+
+function renderRatings() {
+  ensureRatings();
+
+  const pending = data.ratings.filter(r => !r.approved);
+  const approved = data.ratings.filter(r => r.approved);
+
+  // الإحصائيات
+  const total = data.ratings.length;
+  const avg = total > 0 ? (data.ratings.reduce((s, r) => s + (r.stars || 0), 0) / total).toFixed(1) : '0';
+  document.getElementById('statPending').textContent = pending.length;
+  document.getElementById('statApproved').textContent = approved.length;
+  document.getElementById('statAvg').textContent = avg;
+  document.getElementById('statTotal').textContent = total;
+
+  // Badge في التبويب
+  const badge = document.getElementById('pendingRatingsBadge');
+  if (badge) {
+    if (pending.length > 0) {
+      badge.style.display = 'inline-block';
+      badge.textContent = pending.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // التقييمات المعلّقة
+  const pList = document.getElementById('pendingRatingsList');
+  if (pending.length === 0) {
+    pList.innerHTML = '<p style="color:var(--muted); text-align:center; padding:20px;">✨ لا توجد تقييمات في الانتظار</p>';
+  } else {
+    pList.innerHTML = pending.map(r => {
+      const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
+      const initial = (r.name || 'ز').charAt(0);
+      return `
+        <div class="rating-card pending">
+          <div class="rating-head">
+            <div class="rating-user">
+              <div class="rating-avatar">${escapeHtml(initial)}</div>
+              <div>
+                <div class="rating-name">${escapeHtml(r.name || 'زائر')}</div>
+                <div class="rating-date">${escapeHtml(r.date || '')}</div>
+              </div>
+            </div>
+            <span class="rating-badge pending">⏳ في الانتظار</span>
+          </div>
+          <div class="rating-stars">${stars} <span style="font-size:13px;color:var(--muted);">(${r.stars}/5)</span></div>
+          <div class="rating-comment">${escapeHtml(r.comment || 'لا يوجد تعليق')}</div>
+          <div class="rating-actions">
+            <button class="btn btn-success btn-sm" onclick="approveRating('${r.id}')">✅ اعتماد وعرض</button>
+            <button class="btn btn-danger btn-sm" onclick="rejectRating('${r.id}')">❌ رفض وحذف</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // التقييمات المعتمدة
+  const aList = document.getElementById('approvedRatingsList');
+  if (approved.length === 0) {
+    aList.innerHTML = '<p style="color:var(--muted); text-align:center; padding:20px;">لا توجد تقييمات معتمدة بعد.</p>';
+  } else {
+    aList.innerHTML = approved.map(r => {
+      const stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
+      const initial = (r.name || 'ز').charAt(0);
+      return `
+        <div class="rating-card approved">
+          <div class="rating-head">
+            <div class="rating-user">
+              <div class="rating-avatar">${escapeHtml(initial)}</div>
+              <div>
+                <div class="rating-name">${escapeHtml(r.name || 'زائر')}</div>
+                <div class="rating-date">${escapeHtml(r.date || '')}</div>
+              </div>
+            </div>
+            <span class="rating-badge approved">✅ معتمد</span>
+          </div>
+          <div class="rating-stars">${stars} <span style="font-size:13px;color:var(--muted);">(${r.stars}/5)</span></div>
+          <div class="rating-comment">${escapeHtml(r.comment || 'لا يوجد تعليق')}</div>
+          <div class="rating-actions">
+            <button class="btn btn-outline btn-sm" onclick="unapproveRating('${r.id}')">↩️ إعادة للانتظار</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteRating('${r.id}')">🗑️ حذف نهائي</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function approveRating(id) {
+  const r = data.ratings.find(x => x.id === id);
+  if (!r) return;
+  r.approved = true;
+  renderRatings();
+  markUnsaved();
+  showToast('✅ تم الاعتماد — اضغط حفظ في السحابة', 'ok');
+}
+
+function rejectRating(id) {
+  if (!confirm('رفض وحذف هذا التقييم؟')) return;
+  data.ratings = data.ratings.filter(x => x.id !== id);
+  renderRatings();
+  markUnsaved();
+  showToast('🗑️ تم الحذف', 'bad');
+}
+
+function unapproveRating(id) {
+  const r = data.ratings.find(x => x.id === id);
+  if (!r) return;
+  r.approved = false;
+  renderRatings();
+  markUnsaved();
+  showToast('↩️ تم إعادته للانتظار', 'ok');
+}
+
+function deleteRating(id) {
+  if (!confirm('حذف نهائي؟')) return;
+  data.ratings = data.ratings.filter(x => x.id !== id);
+  renderRatings();
+  markUnsaved();
+  showToast('🗑️ تم الحذف', 'bad');
+}
+
+function addManualRating() {
+  openModal('➕ إضافة تقييم يدوياً', `
+    <div class="field">
+      <label>الاسم</label>
+      <input type="text" id="mRatingName" placeholder="اسم العميل" maxlength="50">
+    </div>
+    <div class="field">
+      <label>عدد النجوم (1-5)</label>
+      <select id="mRatingStars">
+        <option value="5">★★★★★ (5)</option>
+        <option value="4">★★★★☆ (4)</option>
+        <option value="3">★★★☆☆ (3)</option>
+        <option value="2">★★☆☆☆ (2)</option>
+        <option value="1">★☆☆☆☆ (1)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>التعليق</label>
+      <textarea id="mRatingComment" rows="3" placeholder="رأي العميل..." maxlength="500"></textarea>
+    </div>
+  `, async () => {
+    const name = document.getElementById('mRatingName').value.trim() || 'زائر';
+    const stars = parseInt(document.getElementById('mRatingStars').value) || 5;
+    const comment = document.getElementById('mRatingComment').value.trim() || 'لا يوجد';
+    ensureRatings();
+    data.ratings.push({
+      id: 'R-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      stars, name, comment,
+      date: new Date().toLocaleString('ar-DZ'),
+      approved: true,
+      createdAt: Date.now(),
+      manual: true
+    });
+    renderRatings();
+    markUnsaved();
+    showToast('✅ تمت إضافة التقييم (معتمد)', 'ok');
+    return true;
+  });
+}
+
+/* ============ 🖼️ الوسائط ============ */
 function renderImages() {
   const list = document.getElementById('imagesList');
   if (!data.product.images || data.product.images.length === 0) {
@@ -1045,27 +1231,22 @@ function setMainImage(index) {
 
 function addImage() {
   const cloudinaryConfigured = isCloudinaryConfigured();
-
   openModal('📸 إضافة صور / فيديوهات', `
     <div class="field">
-      <label>📁 اختر ملفات من جهازك (يمكن اختيار عدة ملفات دفعة واحدة)</label>
+      <label>📁 اختر ملفات من جهازك</label>
       <div class="drop-zone" id="dropZone">
         <div class="drop-zone-icon">📤</div>
         <div class="drop-zone-title">اضغط لاختيار ملفات أو اسحبها هنا</div>
-        <div class="drop-zone-hint">صور: PNG, JPG, WEBP, GIF | فيديو: MP4, WEBM, MOV — كل ملف حتى 50 ميغابايت</div>
+        <div class="drop-zone-hint">صور: PNG, JPG, WEBP, GIF | فيديو: MP4, WEBM, MOV — حتى 50 ميغابايت</div>
       </div>
       <input type="file" id="newMediaFile" accept="image/*,video/*" multiple style="display:none;">
       <div class="multi-preview" id="multiPreview"></div>
     </div>
-
-    <div class="divider-or">أو أضف رابطاً واحداً</div>
-
+    <div class="divider-or">أو أضف رابطاً</div>
     <div class="field">
       <label>🔗 رابط صورة أو فيديو مباشر</label>
       <input type="text" id="newImgUrl" placeholder="https://..." dir="ltr">
-      <div class="field-hint">سيتم التعرف تلقائياً على النوع (صورة أو فيديو).</div>
     </div>
-
     <div class="upload-status" id="uploadStatus"></div>
   `, async () => {
     const fileInput = document.getElementById('newMediaFile');
@@ -1074,49 +1255,32 @@ function addImage() {
 
     if (fileInput.files && fileInput.files.length > 0) {
       if (!cloudinaryConfigured) {
-        status.textContent = '❌ لم يتم إعداد Cloudinary بعد!';
+        status.textContent = '❌ لم يتم إعداد Cloudinary!';
         status.className = 'upload-status bad';
         return false;
       }
-
       const files = Array.from(fileInput.files);
       const MAX_SIZE = 50 * 1024 * 1024;
       let success = 0, failed = 0;
-
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (file.size > MAX_SIZE) { failed++; continue; }
-
-        status.textContent = `⏳ جاري الرفع ${i + 1} من ${files.length} — ${file.name}`;
+        status.textContent = `⏳ رفع ${i + 1}/${files.length} — ${file.name}`;
         status.className = 'upload-status loading';
-
         try {
           const formData = new FormData();
           formData.append('file', file);
           formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
-            method: 'POST', body: formData
-          });
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, { method: 'POST', body: formData });
           const json = await res.json();
-
-          if (json.secure_url) {
-            data.product.images.push(json.secure_url);
-            success++;
-          } else {
-            console.error('فشل:', json.error);
-            failed++;
-          }
-        } catch (err) {
-          console.error('خطأ:', err);
-          failed++;
-        }
+          if (json.secure_url) { data.product.images.push(json.secure_url); success++; }
+          else { failed++; }
+        } catch (err) { failed++; }
       }
-
       if (success > 0) {
         renderImages();
         markUnsaved();
-        status.textContent = `✅ تم رفع ${success} ملف بنجاح${failed ? ` (فشل ${failed})` : ''}`;
+        status.textContent = `✅ تم رفع ${success} ملف${failed ? ` (فشل ${failed})` : ''}`;
         status.className = 'upload-status ok';
         showToast(`✅ تمت إضافة ${success} ملف`, 'ok');
         return true;
@@ -1125,16 +1289,13 @@ function addImage() {
         status.className = 'upload-status bad';
         return false;
       }
-    }
-    else if (urlInput.value.trim()) {
-      const url = urlInput.value.trim();
-      data.product.images.push(url);
+    } else if (urlInput.value.trim()) {
+      data.product.images.push(urlInput.value.trim());
       renderImages();
       markUnsaved();
       showToast('✅ تمت إضافة الرابط', 'ok');
       return true;
-    }
-    else {
+    } else {
       status.textContent = '⚠️ اختر ملفات أو الصق رابطاً';
       status.className = 'upload-status bad';
       return false;
@@ -1147,7 +1308,6 @@ function addImage() {
     const multiPreview = document.getElementById('multiPreview');
     const urlInput = document.getElementById('newImgUrl');
     const status = document.getElementById('uploadStatus');
-
     if (!dropZone || !fileInput) return;
 
     dropZone.addEventListener('click', () => fileInput.click());
@@ -1157,17 +1317,10 @@ function addImage() {
       if (files.length === 0) return;
       renderMultiPreview(files);
       urlInput.value = '';
-      status.textContent = '';
-      status.className = 'upload-status';
     });
 
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
@@ -1185,26 +1338,15 @@ function addImage() {
         const isVideo = f.type.startsWith('video/');
         const badge = isVideo ? '🎬' : '🖼️';
         const url = URL.createObjectURL(f);
-        const mediaHTML = isVideo
-          ? `<video src="${url}" muted></video>`
-          : `<img src="${url}" alt="">`;
-        return `
-          <div class="multi-preview-item">
-            ${mediaHTML}
-            <div class="badge">${badge}</div>
-          </div>
-        `;
+        const mediaHTML = isVideo ? `<video src="${url}" muted></video>` : `<img src="${url}" alt="">`;
+        return `<div class="multi-preview-item">${mediaHTML}<div class="badge">${badge}</div></div>`;
       }).join('');
-
       status.textContent = `📎 ${files.length} ملف جاهز للرفع`;
       status.className = 'upload-status loading';
     }
 
     urlInput.addEventListener('input', () => {
-      if (urlInput.value.trim()) {
-        fileInput.value = '';
-        multiPreview.innerHTML = '';
-      }
+      if (urlInput.value.trim()) { fileInput.value = ''; multiPreview.innerHTML = ''; }
     });
   }, 100);
 }
@@ -1226,7 +1368,7 @@ function renderColors() {
   list.innerHTML = data.product.colors.map((c, i) => `
     <div class="color-item">
       <div class="color-swatch" style="background:${c.hex};"></div>
-      <input type="text" value="${c.name}" oninput="updateColor(${i},'name',this.value)" placeholder="اسم اللون">
+      <input type="text" value="${escapeHtml(c.name)}" oninput="updateColor(${i},'name',this.value)" placeholder="اسم اللون">
       <input type="color" value="${c.hex}" oninput="updateColor(${i},'hex',this.value)">
       <button class="btn btn-danger btn-sm" onclick="removeColor(${i})">🗑️</button>
     </div>
@@ -1234,7 +1376,7 @@ function renderColors() {
 }
 function addColor() { data.product.colors.push({ name: 'لون جديد', hex: '#cccccc' }); renderColors(); markUnsaved(); }
 function updateColor(i, key, value) { data.product.colors[i][key] = value; markUnsaved(); }
-function removeColor(i) { if (!confirm('حذف هذا اللون؟')) return; data.product.colors.splice(i, 1); renderColors(); markUnsaved(); }
+function removeColor(i) { if (!confirm('حذف؟')) return; data.product.colors.splice(i, 1); renderColors(); markUnsaved(); }
 
 /* ============ المميزات ============ */
 function renderFeatures() {
@@ -1250,9 +1392,9 @@ function renderFeatures() {
         <div class="item-actions"><button class="btn btn-danger btn-sm" onclick="removeFeature(${i})">🗑️</button></div>
       </div>
       <div class="row-3">
-        <div class="field"><label>أيقونة</label><input type="text" value="${f.icon}" oninput="updateFeature(${i},'icon',this.value)" style="font-size:22px;text-align:center;"></div>
-        <div class="field"><label>العنوان</label><input type="text" value="${f.title}" oninput="updateFeature(${i},'title',this.value)"></div>
-        <div class="field"><label>الوصف</label><input type="text" value="${f.desc}" oninput="updateFeature(${i},'desc',this.value)"></div>
+        <div class="field"><label>أيقونة</label><input type="text" value="${escapeHtml(f.icon)}" oninput="updateFeature(${i},'icon',this.value)" style="font-size:22px;text-align:center;"></div>
+        <div class="field"><label>العنوان</label><input type="text" value="${escapeHtml(f.title)}" oninput="updateFeature(${i},'title',this.value)"></div>
+        <div class="field"><label>الوصف</label><input type="text" value="${escapeHtml(f.desc)}" oninput="updateFeature(${i},'desc',this.value)"></div>
       </div>
     </div>
   `).join('');
@@ -1275,9 +1417,9 @@ function renderSpecs() {
         <div class="item-actions"><button class="btn btn-danger btn-sm" onclick="removeSpec(${i})">🗑️</button></div>
       </div>
       <div class="row-3">
-        <div class="field"><label>أيقونة</label><input type="text" value="${s.icon}" oninput="updateSpec(${i},'icon',this.value)" style="font-size:22px;text-align:center;"></div>
-        <div class="field"><label>القيمة</label><input type="text" value="${s.value}" oninput="updateSpec(${i},'value',this.value)"></div>
-        <div class="field"><label>التسمية</label><input type="text" value="${s.label}" oninput="updateSpec(${i},'label',this.value)"></div>
+        <div class="field"><label>أيقونة</label><input type="text" value="${escapeHtml(s.icon)}" oninput="updateSpec(${i},'icon',this.value)" style="font-size:22px;text-align:center;"></div>
+        <div class="field"><label>القيمة</label><input type="text" value="${escapeHtml(s.value)}" oninput="updateSpec(${i},'value',this.value)"></div>
+        <div class="field"><label>التسمية</label><input type="text" value="${escapeHtml(s.label)}" oninput="updateSpec(${i},'label',this.value)"></div>
       </div>
     </div>
   `).join('');
@@ -1300,11 +1442,11 @@ function renderReviews() {
         <div class="item-actions"><button class="btn btn-danger btn-sm" onclick="removeReview(${i})">🗑️</button></div>
       </div>
       <div class="row-3">
-        <div class="field"><label>الاسم</label><input type="text" value="${r.name}" oninput="updateReview(${i},'name',this.value)"></div>
-        <div class="field"><label>التاريخ</label><input type="text" value="${r.date}" oninput="updateReview(${i},'date',this.value)"></div>
+        <div class="field"><label>الاسم</label><input type="text" value="${escapeHtml(r.name)}" oninput="updateReview(${i},'name',this.value)"></div>
+        <div class="field"><label>التاريخ</label><input type="text" value="${escapeHtml(r.date)}" oninput="updateReview(${i},'date',this.value)"></div>
         <div class="field"><label>النجوم</label><input type="number" value="${r.stars}" min="1" max="5" oninput="updateReview(${i},'stars',parseInt(this.value))"></div>
       </div>
-      <div class="field"><label>الرأي</label><textarea oninput="updateReview(${i},'text',this.value)" rows="2">${r.text}</textarea></div>
+      <div class="field"><label>الرأي</label><textarea oninput="updateReview(${i},'text',this.value)" rows="2">${escapeHtml(r.text)}</textarea></div>
     </div>
   `).join('');
 }
@@ -1325,8 +1467,8 @@ function renderFaqs() {
         <div class="item-num">${i + 1}</div>
         <div class="item-actions"><button class="btn btn-danger btn-sm" onclick="removeFaq(${i})">🗑️</button></div>
       </div>
-      <div class="field"><label>السؤال</label><input type="text" value="${f.q}" oninput="updateFaq(${i},'q',this.value)"></div>
-      <div class="field"><label>الجواب</label><textarea oninput="updateFaq(${i},'a',this.value)" rows="2">${f.a}</textarea></div>
+      <div class="field"><label>السؤال</label><input type="text" value="${escapeHtml(f.q)}" oninput="updateFaq(${i},'q',this.value)"></div>
+      <div class="field"><label>الجواب</label><textarea oninput="updateFaq(${i},'a',this.value)" rows="2">${escapeHtml(f.a)}</textarea></div>
     </div>
   `).join('');
 }
@@ -1352,7 +1494,7 @@ function openModal(title, bodyHTML, onConfirm) {
       <div class="modal-body">${bodyHTML}</div>
       <div class="modal-actions">
         <button class="btn btn-outline" id="modalCancelBtn">إلغاء</button>
-        <button class="btn btn-primary" id="modalConfirmBtn">تأكيد الرفع</button>
+        <button class="btn btn-primary" id="modalConfirmBtn">تأكيد</button>
       </div>
     </div>
   `;
